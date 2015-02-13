@@ -8,7 +8,7 @@
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.  See COPYING for more details.
  */
-#define APIVERSION "1.3"
+#define APIVERSION "1.4"
 
 #ifdef WIN32
 # define  _WINSOCK_DEPRECATED_NO_WARNINGS
@@ -91,6 +91,7 @@ static int bye = 0;
 
 extern char *opt_api_allow;
 extern int opt_api_listen; /* port */
+extern int opt_api_remote;
 extern uint32_t accepted_count;
 extern uint32_t rejected_count;
 extern int num_cpus;
@@ -370,6 +371,46 @@ static char *getmeminfo(char *params)
 
 /*****************************************************************************/
 
+/**
+ * Remote control allowed ?
+ * TODO: ip filters
+ */
+static bool check_remote_access(void)
+{
+	return (opt_api_remote > 0);
+}
+
+/**
+ * Change pool url (see --url parameter)
+ * seturl|stratum+tcp://Danila.1:X@pool.ipominer.com:3335|
+ */
+extern bool stratum_need_reset;
+static char *remote_seturl(char *params)
+{
+	*buffer = '\0';
+	if (!check_remote_access())
+		return buffer;
+	parse_arg('o', params);
+	stratum_need_reset = true;
+	sprintf(buffer, "%s", "ok|");
+	return buffer;
+}
+
+/**
+ * Ask the miner to quit
+ */
+static char *remote_quit(char *params)
+{
+	*buffer = '\0';
+	if (!check_remote_access())
+		return buffer;
+	bye = 1;
+	sprintf(buffer, "%s", "bye|");
+	return buffer;
+}
+
+/*****************************************************************************/
+
 static char *gethelp(char *params);
 struct CMDS {
 	const char *name;
@@ -382,6 +423,11 @@ struct CMDS {
 	{ "hwinfo",  gethwinfos },
 	{ "meminfo", getmeminfo },
 	{ "scanlog", getscanlog },
+
+	/* remote functions */
+	{ "seturl",  remote_seturl },
+	{ "quit",    remote_quit },
+
 	/* keep it the last */
 	{ "help",    gethelp },
 };
@@ -842,6 +888,11 @@ static void api()
 
 				for (i = 0; i < CMDMAX; i++) {
 					if (strcmp(buf, cmds[i].name) == 0 && strlen(buf)) {
+						if (params && strlen(params)) {
+							// remove possible trailing |
+							if (params[strlen(params)-1] == '|')
+								params[strlen(params)-1] = '\0';
+						}
 						result = (cmds[i].func)(params);
 						if (wskey) {
 							websocket_handshake(c, result, wskey);
@@ -868,8 +919,12 @@ void *api_thread(void *userdata)
 
 	startup = time(NULL);
 	api();
-
 	tq_freeze(mythr->q);
+
+	if (bye) {
+		// quit command
+		proper_exit(1);
+	}
 
 	return NULL;
 }

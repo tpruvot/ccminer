@@ -174,7 +174,7 @@ uint32_t gpus_intensity[MAX_GPUS] = { 0 };
 char *rpc_user = NULL;
 static char *rpc_pass;
 static char *rpc_userpass = NULL;
-static char *rpc_url;
+char *rpc_url;
 static char *short_url = NULL;
 char *opt_cert;
 char *opt_proxy;
@@ -200,6 +200,7 @@ int opt_statsavg = 30;
 // strdup on char* to allow a common free() if used
 static char* opt_syslog_pfx = strdup(PROGRAM_NAME);
 char *opt_api_allow = strdup("127.0.0.1"); /* 0.0.0.0 for all ips */
+int opt_api_remote = 0;
 int opt_api_listen = 4068; /* 0 to disable */
 
 #ifdef HAVE_GETOPT_LONG
@@ -275,7 +276,8 @@ Options:\n\
   -P, --protocol-dump   verbose dump of protocol-level activities\n\
       --cpu-affinity    set process affinity to cpu core(s), mask 0x3 for cores 0 and 1\n\
       --cpu-priority    set process priority (default: 0 idle, 2 normal to 5 highest)\n\
-  -b, --api-bind        IP/Port for the miner API (default: 127.0.0.1:4068)\n"
+  -b, --api-bind        IP/Port for the miner API (default: 127.0.0.1:4068)\n\
+      --api-remote      Allow remote control\n"
 
 #ifdef HAVE_SYSLOG_H
 "\
@@ -306,6 +308,7 @@ static char const short_options[] =
 static struct option const options[] = {
 	{ "algo", 1, NULL, 'a' },
 	{ "api-bind", 1, NULL, 'b' },
+	{ "api-remote", 0, NULL, 1030 },
 #ifndef WIN32
 	{ "background", 0, NULL, 'B' },
 #endif
@@ -1672,7 +1675,7 @@ static void *stratum_thread(void *userdata)
 	stratum.url = (char*)tq_pop(mythr->q, NULL);
 	if (!stratum.url)
 		goto out;
-	applog(LOG_BLUE, "Starting Stratum on %s", stratum.url);
+	applog(LOG_BLUE, "Starting on %s", stratum.url);
 
 	while (1) {
 		int failures = 0;
@@ -1680,7 +1683,13 @@ static void *stratum_thread(void *userdata)
 		if (stratum_need_reset) {
 			stratum_need_reset = false;
 			stratum_disconnect(&stratum);
-			applog(LOG_DEBUG, "stratum connection reset");
+			if (strcmp(stratum.url, rpc_url)) {
+				free(stratum.url);
+				stratum.url = strdup(rpc_url);
+				applog(LOG_BLUE, "Connection changed to %s", short_url);
+			} else if (!opt_quiet) {
+				applog(LOG_DEBUG, "Stratum connection reset");
+			}
 		}
 
 		while (!stratum.curl) {
@@ -1767,7 +1776,7 @@ static void show_usage_and_exit(int status)
 	proper_exit(status);
 }
 
-static void parse_arg(int key, char *arg)
+void parse_arg(int key, char *arg)
 {
 	char *p = arg;
 	int v, i;
@@ -1805,6 +1814,9 @@ static void parse_arg(int key, char *arg)
 			/* port or 0 to disable */
 			opt_api_listen = atoi(arg);
 		}
+		break;
+	case 1030: /* --api-remote */
+		opt_api_remote = 1;
 		break;
 	case 'B':
 		opt_background = true;
@@ -1944,7 +1956,7 @@ static void parse_arg(int key, char *arg)
 			*p = '\0';
 			ap = strstr(rpc_url, "://") + 3;
 			sp = strchr(ap, ':');
-			if (sp) {
+			if (sp && sp < p) {
 				free(rpc_userpass);
 				rpc_userpass = strdup(ap);
 				free(rpc_user);
@@ -1956,8 +1968,10 @@ static void parse_arg(int key, char *arg)
 				free(rpc_user);
 				rpc_user = strdup(ap);
 			}
+			// remove user[:pass]@ from rpc_url
 			memmove(ap, p + 1, strlen(p + 1) + 1);
-			short_url = p + 1;
+			// host:port only
+			short_url = ap;
 		}
 		have_stratum = !opt_benchmark && !strncasecmp(rpc_url, "stratum", 7);
 		break;

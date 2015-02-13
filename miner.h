@@ -634,6 +634,7 @@ extern void *tq_pop(struct thread_q *tq, const struct timespec *abstime);
 extern void tq_freeze(struct thread_q *tq);
 extern void tq_thaw(struct thread_q *tq);
 
+void parse_arg(int key, char *arg);
 void proper_exit(int reason);
 
 size_t time2str(char* buf, time_t timer);

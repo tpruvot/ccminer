@@ -84,7 +84,7 @@
 #define HAVE_UNISTD_H 1
 
 /* Defined if libcurl supports AsynchDNS */
-#define LIBCURL_FEATURE_ASYNCHDNS 1
+/* #undef LIBCURL_FEATURE_ASYNCHDNS */
 
 /* Defined if libcurl supports IDN */
 #define LIBCURL_FEATURE_IDN 1
@@ -146,6 +146,9 @@
 /* Defined if libcurl supports TFTP */
 #define LIBCURL_PROTOCOL_TFTP 1
 
+/* Define to 1 if your C compiler doesn't accept -c and -o together. */
+/* #undef NO_MINUS_C_MINUS_O */
+
 /* Name of package */
 #define PACKAGE "ccminer"
 
@@ -156,7 +159,7 @@
 #define PACKAGE_NAME "ccminer"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "ccminer 1.5.3"
+#define PACKAGE_STRING "ccminer 1.6-git"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "ccminer"
@@ -165,7 +168,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.5.3"
+#define PACKAGE_VERSION "1.6-git"
 
 /* If using the C implementation of alloca, define if you know the
    direction of stack growth for your system; otherwise it will be
@@ -182,13 +185,13 @@
 #define USE_AVX 1
 
 /* Define to 1 if AVX2 assembly is available. */
-#define USE_AVX2 1
+/* #undef USE_AVX2 */
 
 /* Define to 1 if XOP assembly is available. */
 #define USE_XOP 1
 
 /* Version number of package */
-#define VERSION "1.5.3"
+#define VERSION "1.6-git"
 
 /* Define curl_free() as free() if our version of curl lacks curl_free. */
 /* #undef curl_free */
