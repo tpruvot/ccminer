@@ -517,6 +517,7 @@ extern uint32_t gpus_intensity[MAX_GPUS];
 
 #define CL_WHT  "\x1B[01;37m" /* white */
 
+extern void format_hashrate(double hashrate, char *output);
 extern void applog(int prio, const char *fmt, ...);
 void get_defconfig_path(char *out, size_t bufsize, char *argv0);
 extern json_t *json_rpc_call(CURL *curl, const char *url, const char *userpass,

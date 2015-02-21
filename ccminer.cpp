@@ -1483,9 +1483,8 @@ static void *miner_thread(void *userdata)
 
 		/* output */
 		if (!opt_quiet && loopcnt) {
-			sprintf(s, thr_hashrates[thr_id] >= 1e6 ? "%.0f" : "%.2f",
-				1e-3 * thr_hashrates[thr_id]);
-			applog(LOG_INFO, "GPU #%d: %s, %s kH/s",
+			format_hashrate(thr_hashrates[thr_id], s);
+			applog(LOG_INFO, "GPU #%d: %s, %s",
 				device_map[thr_id], device_name[device_map[thr_id]], s);
 		}
 
@@ -1497,8 +1496,8 @@ static void *miner_thread(void *userdata)
 				hashrate += stats_get_speed(i, thr_hashrates[i]);
 			pthread_mutex_unlock(&stats_lock);
 			if (opt_benchmark) {
-				sprintf(s, hashrate >= 1e6 ? "%.0f" : "%.2f", hashrate / 1000.);
-				applog(LOG_NOTICE, "Total: %s kH/s", s);
+				format_hashrate(hashrate, s);
+				applog(LOG_NOTICE, "Total: %s", s);
 			}
 
 			// X-Mining-Hashrate
