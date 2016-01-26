@@ -240,6 +240,7 @@ Options:\n\
 			x14         X14\n\
 			x15         X15\n\
 			x17         X17\n\
+			vanilla     Blake256 (VNL)\n\
 			whirlcoin   Old Whirlcoin (Whirlpool algo)\n\
 			whirlpool   Whirlpool algo\n\
 			whirlpoolx  WhirlpoolX (VNL)\n\
@@ -778,6 +779,7 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
 		case ALGO_BLAKE:
 		case ALGO_BLAKECOIN:
 		case ALGO_BMW:
+		case ALGO_VANILLA:
 			// fast algos require that...
 			check_dups = true;
 		default:
@@ -1744,6 +1746,7 @@ static void *miner_thread(void *userdata)
 		if (max64 < minmax) {
 			switch (opt_algo) {
 			case ALGO_BLAKECOIN:
+			case ALGO_VANILLA:
 				minmax = 0x80000000U;
 				break;
 			case ALGO_BLAKE:
@@ -1824,6 +1827,7 @@ static void *miner_thread(void *userdata)
 		switch (opt_algo) {
 
 		case ALGO_BLAKECOIN:
+		case ALGO_VANILLA:
 			rc = scanhash_blake256(thr_id, &work, max_nonce, &hashes_done, 8);
 			break;
 		case ALGO_BLAKE:

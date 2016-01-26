@@ -46,6 +46,7 @@ Scrypt-Jane (Chacha)
 Sibcoin (sib)
 Skein (Skein + SHA)
 Woodcoin (Double Skein)
+Vanilla (Blake256 8-rounds - double sha256)
 Vertcoin Lyra2RE
 Ziftrcoin (ZR5)
 
@@ -98,8 +99,10 @@ its command line interface and options.
                           x14         use to mine X14Coin
                           x15         use to mine Halcyon
                           x17         use to mine X17
+                          x17         use to mine X17
+                          vanilla     use to mine Vanilla (Blake256)
                           whirlpool   use to mine Joincoin
-                          whirlpoolx  use to mine Vanilla
+                          whirlpoolx  use to mine Vanilla (Whirlpoolx)
                           zr5         use to mine ZiftrCoin
 
   -d, --devices         gives a comma separated list of CUDA device IDs
@@ -233,9 +236,10 @@ features.
 
 >>> RELEASE HISTORY <<<
 
-  Dec. 31th 2015  v1.7.1
+  Jan. 26th 2016  v1.7.1
                   Implement sib algo (X11 + Russian Streebog-512/GOST)
                   Small bug fixes about device ids mapping (and vendor names)
+                  Add Vanilla algo (Blake256 8-rounds - double sha256)
 
   Nov. 06th 2015  v1.7
                   Improve old devices compatibility (x11, lyra2v2, quark, qubit...)
