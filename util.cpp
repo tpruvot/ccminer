@@ -1966,6 +1966,9 @@ void print_hash_tests(void)
 	s3hash(&hash[0], &buf[0]);
 	printpfx("S3", hash);
 
+	blake256hash(&hash[0], &buf[0], 8);
+	printpfx("vanilla", hash);
+	
 	wcoinhash(&hash[0], &buf[0]);
 	printpfx("whirlpool", hash);
 
