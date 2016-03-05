@@ -103,7 +103,7 @@ Quadro K3100M | 3.0 | nvcc_ARCH = -gencode=arch=compute_30,code=\"sm_30,compute_
 Quadro K2100M | 3.0 | nvcc_ARCH = -gencode=arch=compute_30,code=\"sm_30,compute_30\"
 Quadro K1100M | 3.0 | nvcc_ARCH = -gencode=arch=compute_30,code=\"sm_30,compute_30\"
 Tesla K10 | 3.0 | nvcc_ARCH = -gencode=arch=compute_30,code=\"sm_30,compute_30\"
-GeForce GTX 860M |  | 3.0 | nvcc_ARCH  = -gencode=arch=compute_30,code=\"sm_30,compute_30\" / 5.0  nvcc_ARCH  = -gencode=arch=compute_50,code=\"sm_50,compute_50\"
+GeForce GTX 860M | 3.0 | nvcc_ARCH  = -gencode=arch=compute_30,code=\"sm_30,compute_30\" / 5.0  nvcc_ARCH  = -gencode=arch=compute_50,code=\"sm_50,compute_50\"
 note | 1152 Kepler Cores with Compute Capability  | 3.0 | nvcc_ARCH  = -gencode=arch=compute_30,code=\"sm_30,compute_30\"
 note | 640 Maxwell Cores with higher clocks and Compute Capability 5.0 or 5.2 |  nvcc_ARCH = -gencode=arch=compute_52,code=\"sm_52,compute_52\"
 GeForce GTX 670MX  | 3.0 | nvcc_ARCH  = -gencode=arch=compute_30,code=\"sm_30,compute_30\"
