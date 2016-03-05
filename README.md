@@ -39,5 +39,5 @@ There is also an old [Tutorial for windows](http://cudamining.co.uk/url/tutorial
 CUDA
 -------------------------------
 
-See [CUDA Compatibility](other_file.md) to ensure that your [Makefile.am](Makefile.am) will give you optimal results.
+See [CUDA Compatibility](CUDA_Compatibility.md) to ensure that your [Makefile.am](Makefile.am) will give you optimal results.
 
