@@ -62,6 +62,10 @@ THIS PROGRAMM IS PROVIDED "AS-IS", USE IT AT YOUR OWN RISK!
 If you're interessted and read the source-code, please excuse
 that the most of our comments are in german.
 
+>>> CUDA <<<
+
+See the file CUDA_Compatibility.md for a helpful to ensure that your Makefile.am will produce optimal results.
+
 >>> Command Line Interface <<<
 
 This code is based on the pooler cpuminer and inherits
