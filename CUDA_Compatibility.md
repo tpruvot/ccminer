@@ -19,6 +19,7 @@ If you are controlling numerous devices, you may need more than one of these to 
 Here is a helpful list based on current documentation from nVidia:
 
 Model | Compatibility | nvcc flag
+:---: | :---: | :---:
 Tegra X1 | 5.3 | nvcc_ARCH = -gencode=arch=compute_53,code=\"sm_53,compute_53\"
 GeForce GTX TITAN X  | 5.2 | nvcc_ARCH = -gencode=arch=compute_52,code=\"sm_52,compute_52\"
 GeForce GTX 980 Ti  | 5.2 | nvcc_ARCH = -gencode=arch=compute_52,code=\"sm_52,compute_52\"
