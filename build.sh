@@ -13,4 +13,4 @@ rm -f config.status
 # CFLAGS="-O2" ./configure
 ./configure.sh
 
-make -j 4
+make -j
