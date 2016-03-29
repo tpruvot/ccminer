@@ -220,20 +220,15 @@ void blake256_compress_14(uint32_t *h, const uint32_t nonce, const uint32_t T0)
 	GSPREC(2, 6, 0xA, 0xE, 13,12);
 	GSPREC(3, 7, 0xB, 0xF, 11,14);
 	GSPREC(0, 5, 0xA, 0xF, 2,  6);
-	GSPREC(1, 6, 0xB, 0xC, 5, 10);
 	GSPREC(2, 7, 0x8, 0xD, 4,  0);
-	//GSPREC(3, 4, 0x9, 0xE, 15, 8);
 
-	v[3] += (m[15] ^ c_u256[8]) + v[4];
-	v[14] = __byte_perm(v[14] ^ v[3], 0, 0x1032);
-	v[9] += v[14]; \
-	v[4] = SPH_ROTR32(v[4] ^ v[9], 12);
-	v[3] += (m[8] ^ c_u256[15]) + v[4];
-	v[14] = __byte_perm(v[14] ^ v[3], 0, 0x0321);
-
-	// only compute h6 & 7
-	h[6] ^= v[6] ^ v[14];
 	h[7] ^= v[7] ^ v[15];
+
+	if (h[7] == 0) {
+		GSPREC(1, 6, 0xB, 0xC, 5, 10);
+		GSPREC(3, 4, 0x9, 0xE, 15, 8);
+		h[6] ^= v[6] ^ v[14];
+	}
 }
 
 /* ############################################################################################################################### */
@@ -242,7 +237,7 @@ __global__
 void blake256_gpu_hash_nonce(const uint32_t threads, const uint32_t startNonce, uint32_t *resNonce, const uint64_t highTarget)
 {
 	uint32_t thread = (blockDim.x * blockIdx.x + threadIdx.x);
-	if (thread < threads)
+//	if (thread < threads)
 	{
 		const uint32_t nonce = startNonce + thread;
 		uint32_t h[8];
