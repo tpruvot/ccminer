@@ -852,11 +852,11 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
 
 		ntimestr = bin2hex((const uchar*)(&ntime), 4);
 
-		if (opt_algo == ALGO_DECRED) {
+		/*if (opt_algo == ALGO_DECRED) {
 			xnonce2str = bin2hex((const uchar*)&work->data[36], stratum.xnonce1_size);
-		} else {
+		} else {*/
 			xnonce2str = bin2hex(work->xnonce2, work->xnonce2_len);
-		}
+		//}
 
 		// store to keep/display the solved ratio/diff
 		stratum.sharediff = work->sharediff;
@@ -1404,24 +1404,33 @@ static bool stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 		work->data[1 + i] = le32dec((uint32_t *)sctx->job.prevhash + i);
 
 	if (opt_algo == ALGO_DECRED) {
-		uint16_t vote;
+		//uint16_t vote;
 		for (i = 0; i < 8; i++) // reversed prevhash
 			work->data[1 + i] = swab32(work->data[1 + i]);
-		// decred header (coinb1) [merkle...nonce]
-		memcpy(&work->data[9], sctx->job.coinbase, 108);
-		// last vote bit should never be changed
-		memcpy(&vote, &work->data[25], 2);
-		vote = (opt_vote << 1) | (vote & 1);
-		memcpy(&work->data[25], &vote, 2);
-		// extradata
-		if (sctx->xnonce1_size > sizeof(work->data)-(36*4)) {
+		// decred header (coinb1) [merkle...size]
+		memcpy(&work->data[9], sctx->job.coinbase, 100);
+		work->data[34] = swab32(*((uint32_t*)&sctx->job.ntime)); // ntime
+		// work->data[35] = nonce
+		if ((sctx->xnonce1_size + sctx->xnonce2_size) > 36) {
 			// should never happen...
 			applog(LOG_ERR, "extranonce size overflow!");
-			sctx->xnonce1_size = sizeof(work->data)-(36*4);
+			return false;
 		}
 		memcpy(&work->data[36], sctx->xnonce1, sctx->xnonce1_size);
-		// work->data[36] = swab32(vote); // alt vote submission method
-		work->data[37] = (rand()*4) << 8; // random work data
+		memcpy((uint8_t*)(&work->data[36]) + sctx->xnonce1_size, work->xnonce2, work->xnonce2_len);
+		// last vote bit should never be changed
+		//memcpy(&vote, &work->data[25], 2);
+		//vote = (opt_vote << 1) | (vote & 1);
+		//memcpy(&work->data[25], &vote, 2);
+		// extradata
+		//if (sctx->xnonce1_size > sizeof(work->data)-(36*4)) {
+		//	// should never happen...
+		//	applog(LOG_ERR, "extranonce size overflow!");
+		//	sctx->xnonce1_size = sizeof(work->data)-(36*4);
+		//}
+		//memcpy(&work->data[36], sctx->xnonce1, sctx->xnonce1_size);
+		//// work->data[36] = swab32(vote); // alt vote submission method
+		//work->data[37] = (rand()*4) << 8; // random work data
 		sctx->job.height = work->data[32];
 		//applog_hex(work->data, 180);
 	} else {
@@ -1706,7 +1715,8 @@ static void *miner_thread(void *userdata)
 			wcmplen -= 4;
 		}
 
-		if (memcmp(&work.data[wcmpoft], &g_work.data[wcmpoft], wcmplen)) {
+		if (memcmp(&work.data[wcmpoft], &g_work.data[wcmpoft], wcmplen) ||
+			(opt_algo == ALGO_DECRED && memcmp(&work.data[36], &g_work.data[36], 36))) {
 			#if 0
 			if (opt_debug) {
 				for (int n=0; n <= (wcmplen-8); n+=8) {
@@ -1723,20 +1733,21 @@ static void *miner_thread(void *userdata)
 		} else
 			nonceptr[0]++; //??
 
-		if (opt_algo == ALGO_DECRED) {
-			// suprnova job_id check without data/target/height change...
-			if (check_stratum_jobs && strcmp(work.job_id, g_work.job_id)) {
-				pthread_mutex_unlock(&g_work_lock);
-				continue;
-			}
+		//if (opt_algo == ALGO_DECRED) {
+		//	// suprnova job_id check without data/target/height change...
+		//	if (check_stratum_jobs && strcmp(work.job_id, g_work.job_id)) {
+		//		pthread_mutex_unlock(&g_work_lock);
+		//		continue;
+		//	}
 
-			// use the full range per loop
-			nonceptr[0] = 0;
-			end_nonce = UINT32_MAX;
-			// and make an unique work (extradata)
-			nonceptr[1] += 1;
-			nonceptr[2] |= thr_id;
-		} else if (opt_benchmark) {
+		//	// use the full range per loop
+		//	nonceptr[0] = 0;
+		//	end_nonce = UINT32_MAX;
+		//	// and make an unique work (extradata)
+		//	nonceptr[1] += 1;
+		//	nonceptr[2] |= thr_id;
+		//} else
+		if (opt_benchmark) {
 			// randomize work
 			nonceptr[-1] += 1;
 		}
@@ -2138,7 +2149,7 @@ static void *miner_thread(void *userdata)
 
 		if (rc > 0)
 			work.scanned_to = work.nonces[0];
-		if (rc > 1)
+		else if (rc > 1)
 			work.scanned_to = max(work.nonces[0], work.nonces[1]);
 		else {
 			work.scanned_to = max_nonce;
@@ -2151,7 +2162,7 @@ static void *miner_thread(void *userdata)
 				nonceptr[0] = UINT32_MAX;
 		}
 
-		if (check_dups && opt_algo != ALGO_DECRED)
+		if (check_dups/* && opt_algo != ALGO_DECRED*/)
 			hashlog_remember_scan_range(&work);
 
 		/* output */
@@ -3249,6 +3260,7 @@ int main(int argc, char *argv[])
 	printf("    Built with the nVidia CUDA Toolkit %d.%d\n\n",
 #endif
 		CUDART_VERSION/1000, (CUDART_VERSION % 1000)/10);
+	printf("  Modified by NiceHash for proper Decred stratum\n");
 	printf("  Originally based on Christian Buchner and Christian H. project\n");
 	printf("  Include some of the work of djm34, sp, tsiv and klausT.\n\n");
 	printf("BTC donation address: 1AJdfCpLWPNoAMDfHF1wD5y8VgKSSTHxPo (tpruvot)\n\n");
