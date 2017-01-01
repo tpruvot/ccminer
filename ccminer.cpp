@@ -2716,7 +2716,7 @@ int main(int argc, char *argv[])
 	opt_syslog_pfx = strdup(PROGRAM_NAME);
 	opt_api_allow = strdup("127.0.0.1"); /* 0.0.0.0 for all ips */
 
-	printf("SP-Mod 1.5.79 \n");
+	printf("SP-Mod 1.5.81 \n");
 #ifdef _MSC_VER
 	printf("Compiled with Visual C++ %d ", _MSC_VER / 100);
 #else
