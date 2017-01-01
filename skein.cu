@@ -11,12 +11,12 @@ extern "C" {
 #include "miner.h"
 #include "cuda_helper.h"
 #include <openssl/sha.h>
-
+ 
 static uint32_t foundnonces[MAX_GPUS][2];
 
 extern void skein512_cpu_setBlock_80(uint32_t thr_id,void *pdata);
-extern void skein512_cpu_hash_80_50(int thr_id, uint32_t threads, uint32_t startNounce, int swapu, uint64_t target, uint32_t *h_found);
-extern void skein512_cpu_hash_80_52(int thr_id, uint32_t threads, uint32_t startNounce, int swapu, uint64_t target, uint32_t *h_found);
+extern void skein512_cpu_hash_80_50(int thr_id, uint32_t threads, uint32_t startNounce, int swapu, uint2 target, uint32_t *h_found);
+extern void skein512_cpu_hash_80_52(int thr_id, uint32_t threads, uint32_t startNounce, int swapu, uint2 target, uint32_t *h_found);
 
 extern "C" void skeincoinhash(void *output, const void *input)
 {
@@ -81,9 +81,9 @@ int scanhash_skeincoin(int thr_id, uint32_t *pdata,
 	{
 //		if(scan_abort_flag || work_restart[thr_id].restart) return 0;
 		if (device_sm[device_map[thr_id]] > 500)
-			skein512_cpu_hash_80_52(thr_id, throughput, pdata[19], swap, ((uint64_t*)ptarget)[3], foundnonces[thr_id]);
+			skein512_cpu_hash_80_52(thr_id, throughput, pdata[19], swap, ((uint2*)ptarget)[3], foundnonces[thr_id]);
 		else
-			skein512_cpu_hash_80_50(thr_id, throughput, pdata[19], swap, ((uint64_t*)ptarget)[3], foundnonces[thr_id]);
+			skein512_cpu_hash_80_50(thr_id, throughput, pdata[19], swap, ((uint2*)ptarget)[3], foundnonces[thr_id]);
 		
 		if (foundnonces[thr_id][0] != 0xffffffff)
 		{
@@ -102,7 +102,10 @@ int scanhash_skeincoin(int thr_id, uint32_t *pdata,
 					applog(LOG_INFO, "GPU #%d: found nonce $%08X", thr_id, foundnonces[thr_id][0]);
 				if (foundnonces[thr_id][1] != 0xffffffff)
 				{
-					if (foundnonces[thr_id][1] == foundnonces[thr_id][0]) applog(LOG_WARNING, "Duplicate nonce: #%d", test);
+					if (foundnonces[thr_id][1] == foundnonces[thr_id][0])
+					{
+						//applog(LOG_WARNING, "Duplicate nonce: #%d", test);
+					}
 					else
 					{
 						if (opt_debug || opt_benchmark)
