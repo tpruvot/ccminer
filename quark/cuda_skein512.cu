@@ -6,7 +6,7 @@
 #include "cuda_vector.h" 
 
 static __constant__ __align__(16) uint2 c_PaddedMessage80[2];
-__constant__ uint2 __align__(16)  precalcvalues[8];
+__constant__ uint2 __align__(16)  precalcvalues[9];
 __constant__ __align__(16) uint32_t sha256_endingTable[64];
 
 static uint32_t *d_found[MAX_GPUS];
@@ -2043,8 +2043,6 @@ void skein512_gpu_hash_80_52(uint32_t threads, uint32_t startNounce, uint32_t *c
 
 
 		uint32_t nonce = (startNounce + thread);
-
-
 		h0 = precalcvalues[0];
 		h1 = precalcvalues[1];
 		h2 = precalcvalues[2];
@@ -2053,6 +2051,9 @@ void skein512_gpu_hash_80_52(uint32_t threads, uint32_t startNounce, uint32_t *c
 		h5 = precalcvalues[5];
 		h6 = precalcvalues[6];
 		h7 = precalcvalues[7];
+
+
+
 		t2.x = 0x70000000;
 		t2.y = 0x00000040;	//precalcvalues[8];
 
@@ -2077,7 +2078,12 @@ void skein512_gpu_hash_80_52(uint32_t threads, uint32_t startNounce, uint32_t *c
 
 		t0 = vectorizelow(0x50ull); // SPH_T64(bcount << 6) + (sph_u64)(extra);
 		t1 = vectorizehigh(0xB0000000ul); // (bcount >> 58) + ((sph_u64)(etype) << 55);
-		TFBIG_KINIT_UI2(h0, h1, h2, h3, h4, h5, h6, h7, h8, t0, t1, t2);
+//		TFBIG_KINIT_UI2(h0, h1, h2, h3, h4, h5, h6, h7, h8, t0, t1, t2);
+
+		h8 = precalcvalues[8];
+		t2 = vectorize(0xB000000000000050ull); // t0 ^ t1
+
+
 		TFBIG_4e_UI2(0);
 		TFBIG_4o_UI2(1);
 		TFBIG_4e_UI2(2);
@@ -2369,7 +2375,14 @@ void skein512_gpu_hash_80_50(uint32_t threads, uint32_t startNounce, uint32_t *c
 		}
 		t0 = vectorizelow(0x50ull); // SPH_T64(bcount << 6) + (sph_u64)(extra);
 		t1 = vectorizehigh(0xB0000000ul); // (bcount >> 58) + ((sph_u64)(etype) << 55);
-		TFBIG_KINIT_UI2(h0, h1, h2, h3, h4, h5, h6, h7, h8, t0, t1, t2);
+
+		//		TFBIG_KINIT_UI2(h0, h1, h2, h3, h4, h5, h6, h7, h8, t0, t1, t2);
+
+		h8 = precalcvalues[8];
+		t2 = vectorize(0xB000000000000050ull); // t0 ^ t1
+
+
+
 		TFBIG_4e_UI2(0);
 		TFBIG_4o_UI2(1);
 		TFBIG_4e_UI2(2);
@@ -2670,7 +2683,7 @@ static void precalc()
 	TFBIG_4o_PRE(17);
 	TFBIG_ADDKEY_PRE(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], h, t, 18);
 
-	uint64_t buffer[8];
+	uint64_t buffer[9];
 
 	buffer[0] = PaddedMessage[0] ^ p[0];
 	buffer[1] = PaddedMessage[1] ^ p[1];
@@ -2680,6 +2693,14 @@ static void precalc()
 	buffer[5] = PaddedMessage[5] ^ p[5];
 	buffer[6] = PaddedMessage[6] ^ p[6];
 	buffer[7] = PaddedMessage[7] ^ p[7];
+
+
+	// h8
+	buffer[8] = 0x1BD11BDAA9FC1A22ULL;
+	for (int i = 0; i<8; i++)
+		buffer[8] ^= buffer[i];
+
+
 //	buffer[8] = 0x7000000000000040ull; //t2;
 	CUDA_SAFE_CALL(cudaMemcpyToSymbol(precalcvalues, buffer, sizeof(buffer), 0, cudaMemcpyHostToDevice));
 
