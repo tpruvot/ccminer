@@ -40,3 +40,19 @@ and comment/delete the line 82 : #error -- unsupported GNU version! gcc 4.9
 
 ./ccminer -n
 
+** How to compile on macOS **
+# Step 1: download and install CUDA Toolkit
+# https://developer.nvidia.com/cuda-toolkit-archive
+
+# Step 2: install Homebrew
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+# Step 3: dependencies
+brew install curl openssl llvm
+
+./build.sh
+
+./ccminer -n
+
+
+

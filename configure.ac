@@ -63,6 +63,10 @@ case $target in
     PTHREAD_FLAGS=""
     WS2_LIBS="-lws2_32"
     ;;
+  *86*-apple-darwin*)
+    have_osx=true
+    PTHREAD_FLAGS=""
+    ;;
 esac
 
 AC_CHECK_LIB(jansson, json_loads, request_jansson=false, request_jansson=true)
@@ -73,11 +77,15 @@ AC_CHECK_LIB([pthread], [pthread_create], PTHREAD_LIBS="-lpthread",
 ))))
 
 AC_CHECK_LIB([z],[gzopen], [], [])
-AC_CHECK_LIB([ssl],[SSL_library_init], [], [AC_MSG_ERROR([OpenSSL library required])])
+if test x$have_osx = xfalse
+then
+  AC_CHECK_LIB([ssl],[SSL_library_init], [], [AC_MSG_ERROR([OpenSSL library required])])
+fi
 AC_CHECK_LIB([crypto],[EVP_DigestFinal_ex], [], [AC_MSG_ERROR([OpenSSL library required])])
 
 AM_CONDITIONAL([WANT_JANSSON], [test x$request_jansson = xtrue])
 AM_CONDITIONAL([HAVE_WINDOWS], [test x$have_win32 = xtrue])
+AM_CONDITIONAL([HAVE_OSX], [test x$have_osx = xtrue])
 AM_CONDITIONAL([ARCH_x86], [test x$have_x86 = xtrue])
 AM_CONDITIONAL([ARCH_x86_64], [test x$have_x86_64 = xtrue])
 
@@ -88,8 +96,15 @@ else
 	JANSSON_LIBS=-ljansson
 fi
 
-LIBCURL_CHECK_CONFIG(, 7.15.2, ,
-  [AC_MSG_ERROR([Missing required libcurl >= 7.15.2])])
+#LIBCURL_CHECK_CONFIG(, 7.15.2, ,
+#  [AC_MSG_ERROR([Missing required libcurl >= 7.15.2])])
+LIBCURL=-lcurl
+if test x$have_osx = xtrue
+then
+  LIBCURL_CPPFLAGS=-I/usr/local/opt/curl/include
+fi
+AC_SUBST(LIBCURL)
+AC_SUBST(LIBCURL_CPPFLAGS)
 
 AC_SUBST(JANSSON_LIBS)
 AC_SUBST(PTHREAD_FLAGS)
@@ -108,6 +123,11 @@ if [[ $ARCH == "x86_64" ]];
 then
   SUFFIX="64"
 else
+  SUFFIX=""
+fi
+
+if test x$have_osx = xtrue
+then
   SUFFIX=""
 fi
 
@@ -147,6 +167,6 @@ AC_SUBST(CUDA_LIBS)
 AC_SUBST(CUDA_LDFLAGS)
 AC_SUBST(NVCC)
 
-AC_SUBST(OPENMP_CFLAGS) 
+AC_SUBST(OPENMP_CFLAGS)
 
 AC_OUTPUT
