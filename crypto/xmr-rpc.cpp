@@ -892,7 +892,12 @@ void GetScratchpad()
 	if (!opt_quiet)
 		applog(LOG_INFO, "Scratchpad file %s", pscratchpad_local_cache);
 
+#if defined(__MACH__)
+    	pscratchpad_buff = (uint64_t*) mmap(0, sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, 0, 0);
+#else
 	pscratchpad_buff = (uint64_t*) mmap(0, sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | MAP_POPULATE, 0, 0);
+#endif
+    
 	if(pscratchpad_buff == MAP_FAILED)
 	{
 		if(opt_debug) applog(LOG_DEBUG, "hugetlb not available");
@@ -904,7 +909,11 @@ void GetScratchpad()
 	} else {
 		if(opt_debug) applog(LOG_DEBUG, "using hugetlb");
 	}
+#if defined(__MACH__)
+    madvise(pscratchpad_buff, sz, MADV_RANDOM | MADV_WILLNEED);
+#else
 	madvise(pscratchpad_buff, sz, MADV_RANDOM | MADV_WILLNEED | MADV_HUGEPAGE);
+#endif
 	mlock(pscratchpad_buff, sz);
 
 	if(!load_scratchpad_from_file(pscratchpad_local_cache))
