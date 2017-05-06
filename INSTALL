@@ -48,7 +48,7 @@ and comment/delete the line 82 : #error -- unsupported GNU version! gcc 4.9
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 # Step 3: dependencies
-brew install curl openssl llvm
+brew install autoconf automake curl openssl llvm
 
 ./build.sh
 
