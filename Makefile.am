@@ -91,6 +91,12 @@ ccminer_LDFLAGS  = $(PTHREAD_FLAGS) @CUDA_LDFLAGS@
 ccminer_LDADD    = @LIBCURL@ @JANSSON_LIBS@ @PTHREAD_LIBS@ @WS2_LIBS@ @CUDA_LIBS@ @OPENMP_CFLAGS@ @LIBS@ $(nvml_libs)
 ccminer_CPPFLAGS = @LIBCURL_CPPFLAGS@ @OPENMP_CFLAGS@ $(CPPFLAGS) $(PTHREAD_FLAGS) -fno-strict-aliasing $(JANSSON_INCLUDES) $(DEF_INCLUDES) $(nvml_defs)
 
+if HAVE_OSX
+ccminer_LDFLAGS += -L/usr/local/opt/llvm/lib
+ccminer_LDADD += -lcurl -lcrypto -lomp
+ccminer_CPPFLAGS += -I/usr/local/opt/openssl/include -I/usr/local/llvm/lib/clang/4.0.0/include
+endif
+
 nvcc_ARCH  = -gencode=arch=compute_50,code=\"sm_50,compute_50\"
 
 nvcc_ARCH += -gencode=arch=compute_52,code=\"sm_52,compute_52\"
@@ -100,6 +106,10 @@ nvcc_ARCH += -gencode=arch=compute_52,code=\"sm_52,compute_52\"
 
 nvcc_FLAGS = $(nvcc_ARCH) @CUDA_INCLUDES@ -I. @CUDA_CFLAGS@
 nvcc_FLAGS += $(JANSSON_INCLUDES) --ptxas-options="-v"
+
+if HAVE_OSX
+nvcc_FLAGS += -I/usr/local/opt/openssl/include
+endif
 
 # we're now targeting all major compute architectures within one binary.
 .cu.o:
@@ -177,4 +187,3 @@ scrypt/titan_kernel.o: scrypt/titan_kernel.cu
 
 skein.o: skein.cu
 	$(NVCC) $(nvcc_FLAGS) --maxrregcount=64 -o $@ -c $<
-

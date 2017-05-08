@@ -3,7 +3,11 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#if !((defined(__FreeBSD__) && __FreeBSD__ >= 10) || defined(__APPLE__))
 #include <malloc.h>
+#else
+#include <stdlib.h>
+#endif
 #include <string.h>
 #include <cuda_runtime.h>
 

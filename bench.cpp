@@ -10,6 +10,10 @@
 #include "algos.h"
 #include <cuda_runtime.h>
 
+#ifdef __APPLE__
+#include "pthread_barrier.hpp"
+#endif
+
 int bench_algo = -1;
 
 static double algo_hashrates[MAX_GPUS][ALGO_COUNT] = { 0 };

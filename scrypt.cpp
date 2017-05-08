@@ -43,7 +43,11 @@ using namespace Concurrency;
 #include <string.h>
 
 #include <emmintrin.h>
+#if !((defined(__FreeBSD__) && __FreeBSD__ >= 10) || defined(__APPLE__))
 #include <malloc.h>
+#else
+#include <stdlib.h>
+#endif
 #include <new>
 
 // A thin wrapper around the builtin __m128i type
