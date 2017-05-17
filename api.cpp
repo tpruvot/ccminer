@@ -86,14 +86,20 @@ static struct IP4ACCESS *ipaccess = NULL;
 #define ALLIP4         "0.0.0.0"
 static const char *localaddr = "127.0.0.1";
 static const char *UNAVAILABLE = " - API will not be available";
+static const char *MUNAVAILABLE = " - API multicast listener will not be available";
 static char *buffer = NULL;
 static time_t startup = 0;
 static int bye = 0;
 
 extern char *opt_api_bind;
+extern int opt_api_port;
 extern char *opt_api_allow;
-extern int opt_api_listen; /* port */
-extern int opt_api_remote;
+extern char *opt_api_groups;
+extern bool opt_api_mcast;
+extern char *opt_api_mcast_addr;
+extern char *opt_api_mcast_code;
+extern char *opt_api_mcast_des;
+extern int opt_api_mcast_port;
 
 // current stratum...
 extern struct stratum_ctx stratum;
@@ -417,15 +423,6 @@ static char *getmeminfo(char *params)
 /*****************************************************************************/
 
 /**
- * Remote control allowed ?
- * TODO: ip filters
- */
-static bool check_remote_access(void)
-{
-	return (opt_api_remote > 0);
-}
-
-/**
  * Set pool by index (pools array in json config)
  * switchpool|1|
  */
@@ -433,8 +430,6 @@ static char *remote_switchpool(char *params)
 {
 	bool ret = false;
 	*buffer = '\0';
-	if (!check_remote_access())
-		return buffer;
 	if (!params || strlen(params) == 0) {
 		// rotate pool test
 		ret = pool_switch_next(-1);
@@ -457,8 +452,6 @@ static char *remote_seturl(char *params)
 {
 	bool ret;
 	*buffer = '\0';
-	if (!check_remote_access())
-		return buffer;
 	if (!params || strlen(params) == 0) {
 		// rotate pool test
 		ret = pool_switch_next(-1);
@@ -475,8 +468,6 @@ static char *remote_seturl(char *params)
 static char *remote_quit(char *params)
 {
 	*buffer = '\0';
-	if (!check_remote_access())
-		return buffer;
 	bye = 1;
 	sprintf(buffer, "%s", "bye|");
 	return buffer;
@@ -488,22 +479,23 @@ static char *gethelp(char *params);
 struct CMDS {
 	const char *name;
 	char *(*func)(char *);
+	bool iswritemode;
 } cmds[] = {
-	{ "summary", getsummary },
-	{ "threads", getthreads },
-	{ "pool",    getpoolnfo },
-	{ "histo",   gethistory },
-	{ "hwinfo",  gethwinfos },
-	{ "meminfo", getmeminfo },
-	{ "scanlog", getscanlog },
+	{ "summary", getsummary, false },
+	{ "threads", getthreads, false },
+	{ "pool",    getpoolnfo, false },
+	{ "histo",   gethistory, false },
+	{ "hwinfo",  gethwinfos, false },
+	{ "meminfo", getmeminfo, false },
+	{ "scanlog", getscanlog, false },
 
 	/* remote functions */
-	{ "seturl",  remote_seturl }, /* prefer switchpool, deprecated */
-	{ "switchpool", remote_switchpool },
-	{ "quit",    remote_quit },
+	{ "seturl",  remote_seturl, true }, /* prefer switchpool, deprecated */
+	{ "switchpool", remote_switchpool, true },
+	{ "quit", remote_quit, true },
 
 	/* keep it the last */
-	{ "help",    gethelp },
+	{ "help",    gethelp, false },
 };
 #define CMDMAX ARRAY_SIZE(cmds)
 
@@ -676,6 +668,147 @@ static int websocket_handshake(SOCKETTYPE c, char *result, char *clientkey)
 }
 
 /*
+ * Interpret --api-groups G:cmd1:cmd2:cmd3,P:cmd4,*,...
+ */
+static void setup_groups()
+{
+	char *api_groups = opt_api_groups ? opt_api_groups : "";
+	char *buf, *ptr, *next, *colon;
+	char group;
+	char commands[512];
+	char cmdbuf[100];
+	char *cmd;
+	bool addstar, did;
+	int i;
+
+	buf = (char *)malloc(strlen(api_groups) + 1);
+	if (unlikely(!buf))
+		proper_exit(1); //, "Failed to malloc ipgroups buf");
+
+	strcpy(buf, api_groups);
+
+	next = buf;
+	// for each group defined
+	while (next && *next) {
+		ptr = next;
+		next = strchr(ptr, ',');
+		if (next)
+			*(next++) = '\0';
+
+		// Validate the group
+		if (*(ptr+1) != ':') {
+			colon = strchr(ptr, ':');
+			if (colon)
+				*colon = '\0';
+			proper_exit(1); //, "API invalid group name '%s'", ptr);
+		}
+
+		group = GROUP(*ptr);
+		if (!VALIDGROUP(group))
+			proper_exit(1); //, "API invalid group name '%c'", *ptr);
+
+		if (group == PRIVGROUP)
+			proper_exit(1); //, "API group name can't be '%c'", PRIVGROUP);
+
+		if (group == NOPRIVGROUP)
+			proper_exit(1); //, "API group name can't be '%c'", NOPRIVGROUP);
+
+		if (apigroups[GROUPOFFSET(group)].commands != NULL)
+			proper_exit(1); //, "API duplicate group name '%c'", *ptr);
+
+		ptr += 2;
+
+		// Validate the command list (and handle '*')
+		cmd = &(commands[0]);
+		*(cmd++) = '|';
+		*cmd = '\0';
+		addstar = false;
+		while (ptr && *ptr) {
+			colon = strchr(ptr, ':');
+			if (colon)
+				*(colon++) = '\0';
+
+			if (strcmp(ptr, "*") == 0)
+				addstar = true;
+			else {
+				did = false;
+				for (i = 0; cmds[i].name != NULL; i++) {
+					if (strcasecmp(ptr, cmds[i].name) == 0) {
+						did = true;
+						break;
+					}
+				}
+				if (did) {
+					// skip duplicates
+					sprintf(cmdbuf, "|%s|", cmds[i].name);
+					if (strstr(commands, cmdbuf) == NULL) {
+						strcpy(cmd, cmds[i].name);
+						cmd += strlen(cmds[i].name);
+						*(cmd++) = '|';
+						*cmd = '\0';
+					}
+				} else {
+					proper_exit(1); //, "API unknown command '%s' in group '%c'", ptr, group);
+				}
+			}
+
+			ptr = colon;
+		}
+
+		// * = allow all non-iswritemode commands
+		if (addstar) {
+			for (i = 0; cmds[i].name != NULL; i++) {
+				if (cmds[i].iswritemode == false) {
+					// skip duplicates
+					sprintf(cmdbuf, "|%s|", cmds[i].name);
+					if (strstr(commands, cmdbuf) == NULL) {
+						strcpy(cmd, cmds[i].name);
+						cmd += strlen(cmds[i].name);
+						*(cmd++) = '|';
+						*cmd = '\0';
+					}
+				}
+			}
+		}
+
+		ptr = apigroups[GROUPOFFSET(group)].commands = (char *)malloc(strlen(commands) + 1);
+		if (unlikely(!ptr))
+			proper_exit(1); //, "Failed to malloc group commands buf");
+
+		strcpy(ptr, commands);
+	}
+
+	// Now define R (NOPRIVGROUP) as all non-iswritemode commands
+	cmd = &(commands[0]);
+	*(cmd++) = '|';
+	*cmd = '\0';
+	for (i = 0; cmds[i].name != NULL; i++) {
+		if (cmds[i].iswritemode == false) {
+			strcpy(cmd, cmds[i].name);
+			cmd += strlen(cmds[i].name);
+			*(cmd++) = '|';
+			*cmd = '\0';
+		}
+	}
+
+	ptr = apigroups[GROUPOFFSET(NOPRIVGROUP)].commands = (char *)malloc(strlen(commands) + 1);
+	if (unlikely(!ptr))
+		proper_exit(1); //, "Failed to malloc noprivgroup commands buf");
+
+	strcpy(ptr, commands);
+
+	// W (PRIVGROUP) is handled as a special case since it simply means all commands
+
+	free(buf);
+	return;
+}
+
+/*
+ * Interpret [W:]IP[/Prefix][,[R|W:]IP2[/Prefix2][,...]] --api-allow option
+ *	special case of 0/0 allows /0 (means all IP addresses)
+ */
+#define ALLIP4 "0/0"
+/*
  * N.B. IP4 addresses are by Definition 32bit big endian on all platforms
  */
 static void setup_ipaccess()
@@ -793,10 +926,178 @@ static bool check_connect(struct sockaddr_in *cli, char **connectaddr, char *gro
 	return addrok;
 }
 
+static void mcast()
+{
+	struct sockaddr_in listen;
+	struct ip_mreq grp;
+	struct sockaddr_in came_from;
+	time_t bindstart;
+	char *binderror;
+	SOCKETTYPE mcast_sock;
+	SOCKETTYPE reply_sock;
+	socklen_t came_from_siz;
+	char *connectaddr;
+	ssize_t rep;
+	int bound;
+	int count;
+	int reply_port;
+	bool addrok;
+	char group;
+
+	char expect[] = "ccminer-"; // first 8 bytes constant
+	char *expect_code;
+	size_t expect_code_len;
+	char buf[1024];
+	char replybuf[1024];
+
+	memset(&grp, 0, sizeof(grp));
+	grp.imr_multiaddr.s_addr = inet_addr(opt_api_mcast_addr);
+	if (grp.imr_multiaddr.s_addr == INADDR_NONE)
+		proper_exit(1); //, "Invalid Multicast Address");
+	grp.imr_interface.s_addr = INADDR_ANY;
+
+	mcast_sock = socket(AF_INET, SOCK_DGRAM, 0);
+
+	int optval = 1;
+	if (SOCKETFAIL(setsockopt(mcast_sock, SOL_SOCKET, SO_REUSEADDR, (const char *)(&optval), sizeof(optval)))) {
+		applog(LOG_ERR, "API mcast setsockopt SO_REUSEADDR failed (%s)%s", strerror(errno), MUNAVAILABLE);
+		goto die;
+	}
+
+	memset(&listen, 0, sizeof(listen));
+	listen.sin_family = AF_INET;
+	listen.sin_addr.s_addr = INADDR_ANY;
+	listen.sin_port = htons(opt_api_mcast_port);
+
+	// try for more than 1 minute ... in case the old one hasn't completely gone yet
+	bound = 0;
+	bindstart = time(NULL);
+	while (bound == 0) {
+		if (SOCKETFAIL(bind(mcast_sock, (struct sockaddr *)(&listen), sizeof(listen)))) {
+			binderror = strerror(errno);;
+			if ((time(NULL) - bindstart) > 61)
+				break;
+			else
+				sleep(30);
+		}
+		else
+			bound = 1;
+	}
+
+	if (bound == 0) {
+		applog(LOG_ERR, "API mcast bind to port %d failed (%s)%s", opt_api_port, binderror, MUNAVAILABLE);
+		goto die;
+	}
+
+	if (SOCKETFAIL(setsockopt(mcast_sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char *)(&grp), sizeof(grp)))) {
+		applog(LOG_ERR, "API mcast join failed (%s)%s", strerror(errno), MUNAVAILABLE);
+		goto die;
+	}
+
+	expect_code_len = sizeof(expect) + strlen(opt_api_mcast_code);
+	expect_code = (char *)malloc(expect_code_len + 1);
+	if (!expect_code)
+		proper_exit(1); //, "Failed to malloc mcast expect_code");
+	snprintf(expect_code, expect_code_len + 1, "%s%s-", expect, opt_api_mcast_code);
+
+	count = 0;
+	while (80085) {
+		sleep(1);
+
+		count++;
+		came_from_siz = sizeof(came_from);
+		if (SOCKETFAIL(rep = recvfrom(mcast_sock, buf, sizeof(buf) - 1,
+			0, (struct sockaddr *)(&came_from), &came_from_siz))) {
+			applog(LOG_DEBUG, "API mcast failed count=%d (%s) (%d)",
+				count, strerror(errno), (int)mcast_sock);
+			continue;
+		}
+
+		addrok = check_connect(&came_from, &connectaddr, &group);
+		applog(LOG_DEBUG, "API mcast from %s - %s",
+			connectaddr, addrok ? "Accepted" : "Ignored");
+		if (!addrok)
+			continue;
+
+		buf[rep] = '\0';
+		if (rep > 0 && buf[rep - 1] == '\n')
+			buf[--rep] = '\0';
+
+		applog(LOG_DEBUG, "API mcast request rep=%d (%s) from %s:%d",
+			(int)rep, buf,
+			inet_ntoa(came_from.sin_addr),
+			ntohs(came_from.sin_port));
+
+		if ((size_t)rep > expect_code_len && memcmp(buf, expect_code, expect_code_len) == 0) {
+			reply_port = atoi(&buf[expect_code_len]);
+			if (reply_port < 1 || reply_port > 65535) {
+				applog(LOG_DEBUG, "API mcast request ignored - invalid port (%s)",
+					&buf[expect_code_len]);
+			}
+			else {
+				applog(LOG_DEBUG, "API mcast request OK port %s=%d",
+					&buf[expect_code_len], reply_port);
+
+				came_from.sin_port = htons(reply_port);
+				reply_sock = socket(AF_INET, SOCK_DGRAM, 0);
+
+				snprintf(replybuf, sizeof(replybuf),
+					"ccm-%s-%d-%s", opt_api_mcast_code, opt_api_port, opt_api_mcast_des);
+
+				rep = sendto(reply_sock, replybuf, strlen(replybuf) + 1,
+					0, (struct sockaddr *)(&came_from),
+					sizeof(came_from));
+				if (SOCKETFAIL(rep)) {
+					applog(LOG_DEBUG, "API mcast send reply failed (%s) (%d)",
+						strerror(errno), (int)reply_sock);
+				}
+				else {
+					applog(LOG_DEBUG, "API mcast send reply (%s) succeeded (%d) (%d)",
+						replybuf, (int)rep, (int)reply_sock);
+				}
+
+				CLOSESOCKET(reply_sock);
+			}
+		}
+		else
+			applog(LOG_DEBUG, "API mcast request was no good");
+	}
+
+die:
+
+	CLOSESOCKET(mcast_sock);
+}
+
+static void *mcast_thread(void *userdata)
+{
+	struct thr_info *mythr = (struct thr_info *)userdata;
+
+	pthread_detach(pthread_self());
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+	mcast();
+
+	//PTH(mythr) = 0L;
+
+	return NULL;
+}
+
+void mcast_init()
+{
+	struct thr_info *thr;
+
+	thr = (struct thr_info *)calloc(1, sizeof(*thr));
+	if (!thr)
+		proper_exit(1); //, "Failed to calloc mcast thr");
+
+	if (unlikely(pthread_create(&thr->pth, NULL, mcast_thread, thr)))
+		proper_exit(1); //, "API mcast thread create failed");
+}
+
 static void api()
 {
 	const char *addr = opt_api_bind;
-	unsigned short port = (unsigned short) opt_api_listen; // 4068
+	unsigned short port = (unsigned short) opt_api_port; // 4068
 	char buf[MYBUFSIZ];
 	int n, bound;
 	char *connectaddr;
@@ -814,10 +1115,12 @@ static void api()
 
 	SOCKETTYPE c;
 	SOCKETTYPE *apisock;
-	if (!opt_api_listen && opt_debug) {
+	if (!opt_api_port && opt_debug) {
 		applog(LOG_DEBUG, "API disabled");
 		return;
 	}
+
+	setup_groups();
 
 	if (opt_api_allow) {
 		setup_ipaccess();
@@ -839,9 +1142,10 @@ static void api()
 
 	memset(&serv, 0, sizeof(serv));
 	serv.sin_family = AF_INET;
-	serv.sin_addr.s_addr = inet_addr(addr);
+	serv.sin_addr.s_addr = inet_addr(addr); // TODO: allow bind to ip/interface
 	if (serv.sin_addr.s_addr == (in_addr_t)INVINETADDR) {
 		applog(LOG_ERR, "API initialisation 2 failed (%s)%s", strerror(errno), UNAVAILABLE);
+		// free(apisock); FIXME!!
 		return;
 	}
 
@@ -869,7 +1173,7 @@ static void api()
 			binderror = strerror(errno);
 			if ((time(NULL) - bindstart) > 61)
 				break;
-			else if (opt_api_listen == 4068) {
+			else if (opt_api_port == 4068) {
 				/* when port is default one, use first available */
 				if (opt_debug)
 					applog(LOG_DEBUG, "API bind to port %d failed, trying port %u",
@@ -886,10 +1190,10 @@ static void api()
 		}
 		else {
 			bound = 1;
-			if (opt_api_listen != port) {
+			if (opt_api_port != port) {
 				applog(LOG_WARNING, "API bind to port %d failed - using port %u",
-					opt_api_listen, (uint32_t) port);
-				opt_api_listen = port;
+					opt_api_port, (uint32_t)port);
+				opt_api_port = port;
 			}
 		}
 	}
@@ -906,6 +1210,18 @@ static void api()
 		free(apisock);
 		return;
 	}
+
+	if (opt_api_allow)
+		applog(LOG_WARNING, "API running in IP access mode on port %d (%d)", port, (int)*apisock);
+	else {
+		if (strcmp(opt_api_bind, "127.0.0.1"))
+			applog(LOG_WARNING, "API running in UNRESTRICTED read access mode on port %d (%d)", port, (int)*apisock);
+		else
+			applog(LOG_WARNING, "API running in local read access mode on port %d (%d)", port, (int)*apisock);
+	}
+
+	if (opt_api_mcast)
+		mcast_init();
 
 	buffer = (char *) calloc(1, MYBUFSIZ + 1);
 

@@ -211,12 +211,20 @@ double opt_resume_rate = -1.;
 
 int opt_statsavg = 30;
 
+#define API_MCAST_CODE "FTW"
+#define API_MCAST_ADDR "224.0.0.75"
+
 // strdup on char* to allow a common free() if used
 static char* opt_syslog_pfx = strdup(PROGRAM_NAME);
 char *opt_api_bind = strdup("127.0.0.1"); /* 0.0.0.0 for all ips */
-char *opt_api_allow = NULL; /* unimplemented */
-int opt_api_remote = 0;
-int opt_api_listen = 4068; /* 0 to disable */
+int opt_api_port = 4068; /* 0 to disable */
+char *opt_api_allow = NULL;
+char *opt_api_groups = NULL;
+bool opt_api_mcast = false;
+char *opt_api_mcast_addr = strdup(API_MCAST_ADDR);
+char *opt_api_mcast_code = strdup(API_MCAST_CODE);
+char *opt_api_mcast_des = strdup("");
+int opt_api_mcast_port = 4068;
 
 bool opt_stratum_stats = false;
 
@@ -361,6 +369,13 @@ struct option options[] = {
 	{ "algo", 1, NULL, 'a' },
 	{ "api-bind", 1, NULL, 'b' },
 	{ "api-remote", 0, NULL, 1030 },
+	{ "api-allow", 1, NULL, 1031 },
+	{ "api-groups", 1, NULL, 1032 },
+	{ "api-mcast", 0, NULL, 1033 },
+	{ "api-mcast-addr", 1, NULL, 1034 },
+	{ "api-mcast-code", 1, NULL, 1035 },
+	{ "api-mcast-port", 1, NULL, 1036 },
+	{ "api-mcast-des", 1, NULL, 1037 },
 	{ "background", 0, NULL, 'B' },
 	{ "benchmark", 0, NULL, 1005 },
 	{ "cert", 1, NULL, 1001 },
@@ -2977,7 +2992,7 @@ void parse_arg(int key, char *arg)
 				opt_api_bind = strdup(arg);
 				opt_api_bind[p - arg] = '\0';
 			}
-			opt_api_listen = atoi(p + 1);
+			opt_api_port = atoi(p + 1);
 		}
 		else if (arg && strstr(arg, ".")) {
 			/* ip only */
@@ -2986,12 +3001,39 @@ void parse_arg(int key, char *arg)
 		}
 		else if (arg) {
 			/* port or 0 to disable */
-			opt_api_listen = atoi(arg);
+			opt_api_port = atoi(arg);
 		}
 		break;
 	case 1030: /* --api-remote */
-		opt_api_remote = 1;
+		opt_api_allow = strdup("0/0");
 		break;
+	case 1031: /* --api-allow */
+		free(opt_api_allow);
+		opt_api_allow = strdup(arg);
+		break;
+	case 1032: /* --api-groups */
+		free(opt_api_groups);
+		opt_api_groups = strdup(arg);
+		break;
+	case 1033: /* --api-mcast */
+		opt_api_mcast = true;
+		break;
+	case 1034: /* --api-mcast-addr */
+		free(opt_api_mcast_addr);
+		opt_api_mcast_addr = strdup(arg);
+	case 1035: /* --api-mcast-code */
+		free(opt_api_mcast_code);
+		opt_api_mcast_code = strdup(arg);
+		break;
+	case 1036: /* --api-mcast-des */
+		free(opt_api_mcast_des);
+		opt_api_mcast_des = strdup(arg);
+		break;
+	case 1037: /* --api-mcast-port */
+		v = atoi(arg);
+		if (v < 1 || v > 65535)	/* sanity check */
+			show_usage_and_exit(1);
+		opt_api_mcast_port = v;    
 	case 'B':
 		opt_background = true;
 		break;
@@ -4002,7 +4044,7 @@ int main(int argc, char *argv[])
 	}
 #endif
 
-	if (opt_api_listen) {
+	if (opt_api_port) {
 		/* api thread */
 		api_thr_id = opt_n_threads + 3;
 		thr = &thr_info[api_thr_id];
