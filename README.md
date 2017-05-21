@@ -36,3 +36,8 @@ On Linux, you can use the helper ./build.sh (edit it if required)
 
 There is also an old [Tutorial for windows](http://cudamining.co.uk/url/tutorials/id/3) on [CudaMining](http://cudamining.co.uk) website.
 
+CUDA
+-------------------------------
+
+See [CUDA Compatibility](CUDA_Compatibility.md) to ensure that your [Makefile.am](Makefile.am) will give you optimal results.
+
