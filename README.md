@@ -1,6 +1,9 @@
+-X64: Unzip ..\..\ccminer-equihash-vs2015\compat\curl-for-windows\out\x64\Release\lib\openssl.x64.lib.zip
+
+-X86: Unzip ..\..\ccminer-equihash-vs2015\compat\curl-for-windows\out\x86\Release\lib\openssl.x86.lib.zip
+
 ccminer
 =======
-
 Based on Christian Buchner's &amp; Christian H.'s CUDA project, no more active on github recently.
 
 Fork by tpruvot@github with X14,X15,X17,Blake256,BlakeCoin,Lyra2RE,Skein,ZR5 and others, check the [README.txt](README.txt)
