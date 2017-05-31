@@ -1,3 +1,6 @@
+X64: Unzip ..\..\ccminer-equihash-vs2015\compat\curl-for-windows\out\x64\Release\lib\openssl.x64.lib.zip
+X86: Unzip ..\..\ccminer-equihash-vs2015\compat\curl-for-windows\out\x86\Release\lib\openssl.x86.lib.zip
+=======
 ccminer
 =======
 
