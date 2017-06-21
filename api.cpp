@@ -316,6 +316,7 @@ static const char* os_name()
 #else
 	FILE *fd = fopen("/proc/version", "r");
 	if (!fd || !fscanf(fd, "Linux version %48s", &os_version[6]))
+		fclose(fd);
 		return "linux";
 	fclose(fd);
 	os_version[48] = '\0';
