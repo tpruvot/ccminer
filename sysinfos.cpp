@@ -50,8 +50,10 @@ static uint32_t linux_cpufreq(int core)
 		return freq;
 
 	if (!fscanf(fd, "%d", &freq))
+		fclose(fd);
 		return freq;
 
+	fclose(fd);
 	return freq;
 }
 
