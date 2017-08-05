@@ -121,6 +121,7 @@ bool bench_algo_switch_next(int thr_id)
 	// skip some duplicated algos
 	if (algo == ALGO_C11) algo++; // same as x11
 	if (algo == ALGO_DMD_GR) algo++; // same as groestl
+	if (algo == ALGO_HEAVY) algo++; // dead
 	if (algo == ALGO_MJOLLNIR) algo++; // same as heavy
 	if (algo == ALGO_WHIRLCOIN) algo++; // same as whirlpool
 	if (algo == ALGO_WHIRLPOOLX) algo++; // disabled

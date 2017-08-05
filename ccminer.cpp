@@ -301,7 +301,7 @@ Options:\n\
       --cuda-schedule   Set device threads scheduling mode (default: auto)\n\
   -f, --diff-factor     Divide difficulty by this factor (default 1.0) \n\
   -m, --diff-multiplier Multiply difficulty by this value (default 1.0) \n\
-      --vote=VOTE       vote (for decred and HeavyCoin)\n\
+      --vote=VOTE       vote (for HeavyCoin)\n\
       --trust-pool      trust the max block reward vote (maxvote) sent by the pool\n\
   -o, --url=URL         URL of mining server\n\
   -O, --userpass=U:P    username:password pair for mining server\n\
@@ -1018,7 +1018,7 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
 			applog(LOG_DEBUG, "share diff: %.5f (x %.1f)",
 				stratum.sharediff, work->shareratio[idnonce]);
 
-		if (opt_vote) { // ALGO_HEAVY ALGO_DECRED
+		if (opt_vote) { // ALGO_HEAVY
 			nvotestr = bin2hex((const uchar*)(&nvote), 2);
 			sprintf(s, "{\"method\": \"mining.submit\", \"params\": ["
 					"\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\"], \"id\":%u}",
@@ -2329,8 +2329,6 @@ static void *miner_thread(void *userdata)
 			rc = scanhash_cryptonight(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_DECRED:
-			//applog(LOG_BLUE, "version %x, nbits %x, ntime %x extra %x",
-			//	work.data[0], work.data[29], work.data[34], work.data[38]);
 			rc = scanhash_decred(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_DEEP:
