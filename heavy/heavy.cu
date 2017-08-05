@@ -3,6 +3,21 @@
 #include <cuda.h>
 #include <map>
 
+#ifndef WITH_HEAVY_ALGO
+#include <unistd.h>
+#include "miner.h"
+// nonce array also used in other algos
+uint32_t *heavy_nonceVector[MAX_GPUS];
+int scanhash_heavy(int thr_id, struct work *work, uint32_t max_nonce, unsigned long *hashes_done, uint32_t maxvote, int blocklen)
+{
+	applog(LOG_ERR, "heavy algo not included in this build!");
+	sleep(3);
+	return -1;
+}
+void free_heavy(int thr_id) {}
+
+#else
+
 // include thrust if possible
 #if defined(__GNUC__) && __GNUC__ == 5 && __GNUC_MINOR__ >= 2 && CUDA_VERSION < 7000
 #warning "Heavy: incompatible GCC version!"
@@ -17,15 +32,10 @@
 #endif
 
 #include "miner.h"
-
-extern "C" {
-#include "sph/sph_keccak.h"
-#include "sph/sph_blake.h"
-#include "sph/sph_groestl.h"
-}
-#include "hefty1.h"
-#include "heavy/heavy.h"
 #include "cuda_helper.h"
+
+// nonce array also used in other algos
+uint32_t *heavy_nonceVector[MAX_GPUS];
 
 extern uint32_t *d_hash2output[MAX_GPUS];
 extern uint32_t *d_hash3output[MAX_GPUS];
@@ -35,34 +45,7 @@ extern uint32_t *d_hash5output[MAX_GPUS];
 #define HEAVYCOIN_BLKHDR_SZ 84
 #define MNR_BLKHDR_SZ       80
 
-// nonce-array für die threads
-uint32_t *heavy_nonceVector[MAX_GPUS];
-
 extern uint32_t *heavy_heftyHashes[MAX_GPUS];
-
-/* Combines top 64-bits from each hash into a single hash */
-static void combine_hashes(uint32_t *out, const uint32_t *hash1, const uint32_t *hash2, const uint32_t *hash3, const uint32_t *hash4)
-{
-	const uint32_t *hash[4] = { hash1, hash2, hash3, hash4 };
-	int bits;
-	unsigned int i;
-	uint32_t mask;
-	unsigned int k;
-
-	/* Transpose first 64 bits of each hash into out */
-	memset(out, 0, 32);
-	bits = 0;
-	for (i = 7; i >= 6; i--) {
-		for (mask = 0x80000000; mask; mask >>= 1) {
-			for (k = 0; k < 4; k++) {
-				out[(255 - bits)/32] <<= 1;
-				if ((hash[k][i] & mask) != 0)
-					out[(255 - bits)/32] |= 1;
-				bits++;
-			}
-		}
-	}
-}
 
 #ifdef _MSC_VER
 #include <intrin.h>
@@ -349,6 +332,42 @@ extern "C" void free_heavy(int thr_id)
 	cudaDeviceSynchronize();
 }
 
+#endif
+
+extern "C" {
+#include "sph/sph_keccak.h"
+#include "sph/sph_blake.h"
+#include "sph/sph_groestl.h"
+}
+#include "hefty1.h"
+#include "heavy/heavy.h"
+
+/* Combines top 64-bits from each hash into a single hash */
+__host__
+static void combine_hashes(uint32_t *out, const uint32_t *hash1, const uint32_t *hash2, const uint32_t *hash3, const uint32_t *hash4)
+{
+	const uint32_t *hash[4] = { hash1, hash2, hash3, hash4 };
+	int bits;
+	unsigned int i;
+	uint32_t mask;
+	unsigned int k;
+
+	/* Transpose first 64 bits of each hash into out */
+	memset(out, 0, 32);
+	bits = 0;
+	for (i = 7; i >= 6; i--) {
+		for (mask = 0x80000000; mask; mask >>= 1) {
+			for (k = 0; k < 4; k++) {
+				out[(255 - bits) / 32] <<= 1;
+				if ((hash[k][i] & mask) != 0)
+					out[(255 - bits) / 32] |= 1;
+				bits++;
+			}
+		}
+	}
+}
+
+// CPU hash function
 __host__
 void heavycoin_hash(uchar* output, const uchar* input, int len)
 {
