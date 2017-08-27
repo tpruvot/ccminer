@@ -914,7 +914,7 @@ void GetScratchpad()
 	} else {
 		if(opt_debug) applog(LOG_DEBUG, "using hugetlb");
 	}
-	madvise(pscratchpad_buff, sz, MADV_RANDOM | MADV_WILLNEED | MADV_HUGEPAGE);
+	madvise(pscratchpad_buff, sz, MADV_RANDOM | MADV_WILLNEED | 0);
 	mlock(pscratchpad_buff, sz);
 
 	if(!load_scratchpad_from_file(pscratchpad_local_cache))
