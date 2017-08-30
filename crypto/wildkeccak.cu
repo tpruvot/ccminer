@@ -335,15 +335,10 @@ extern "C" int scanhash_wildkeccak(int thr_id, struct work* work, uint32_t max_n
 			}
 		}
 
-		if (n + throughput >= max_nonce) {
-			n = max_nonce;
-			break;
-		}
-
 		n += throughput;
 		nonce += throughput;
 
-	} while(!work_restart[thr_id].restart);
+	} while(!work_restart[thr_id].restart && (uint64_t) max_nonce > (uint64_t) nonce + throughput);
 
 	*hashes_done = (unsigned long) (n - first + 1);
 	return 0;
