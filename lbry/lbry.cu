@@ -209,14 +209,8 @@ extern "C" int scanhash_lbry(int thr_id, struct work *work, uint32_t max_nonce, 
 			}
 		}
 
-		if ((uint64_t) throughput + pdata[LBC_NONCE_OFT32] >= max_nonce) {
-			pdata[LBC_NONCE_OFT32] = max_nonce;
-			break;
-		}
-
 		pdata[LBC_NONCE_OFT32] += throughput;
-
-	} while (!work_restart[thr_id].restart);
+	} while (!work_restart[thr_id].restart && (uint64_t) max_nonce > (uint64_t) pdata[LBC_NONCE_OFT32] + throughput);
 
 	*hashes_done = pdata[LBC_NONCE_OFT32] - first_nonce;
 

@@ -274,14 +274,9 @@ int scanhash_sia(int thr_id, struct work *work, uint32_t max_nonce, unsigned lon
 			}
 		}
 
-		if ((uint64_t) throughput + pdata[8] >= max_nonce) {
-			pdata[8] = max_nonce;
-			break;
-		}
-
 		pdata[8] += throughput;
 
-	} while (!work_restart[thr_id].restart);
+	} while (!work_restart[thr_id].restart && (uint64_t) max_nonce > (uint64_t) pdata[8] + throughput);
 
 	*hashes_done = pdata[8] - first_nonce;
 

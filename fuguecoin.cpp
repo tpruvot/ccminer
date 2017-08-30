@@ -85,14 +85,9 @@ int scanhash_fugue256(int thr_id, struct work* work, uint32_t max_nonce, unsigne
 			}
 		}
 
-		if ((uint64_t) throughput + pdata[19] >= max_nonce) {
-			pdata[19] = max_nonce;
-			break;
-		}
-
 		pdata[19] += throughput;
 
-	} while (!work_restart[thr_id].restart);
+	} while (!work_restart[thr_id].restart && (uint64_t) max_nonce > (uint64_t) pdata[19] + throughput);
 
 	*hashes_done = pdata[19] - start_nonce;
 	return 0;

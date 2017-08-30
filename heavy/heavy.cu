@@ -281,6 +281,8 @@ int scanhash_heavy(int thr_id, struct work *work, uint32_t max_nonce, unsigned l
 			applog_hash((uchar*)hash);
 		}
 
+		*hashes_done = pdata[19] + throughput - first_nonce;
+
 		// Ergebnisse kopieren
 		if(actualNumberOfValuesInNonceVectorGPU > 0)
 		{
@@ -309,17 +311,12 @@ int scanhash_heavy(int thr_id, struct work *work, uint32_t max_nonce, unsigned l
 		}
 
 emptyNonceVector:
-		if ((uint64_t) throughput + pdata[19] >= max_nonce) {
-			pdata[19] = max_nonce;
-			break;
-		}
 		pdata[19] += throughput;
 
-	} while (!work_restart[thr_id].restart);
+	} while (!work_restart[thr_id].restart && (uint64_t) max_nonce > (uint64_t) pdata[19] + throughput);
 
-exit:
 	*hashes_done = pdata[19] - first_nonce;
-
+exit:
 	cudaFreeHost(cpu_nonceVector);
 	cudaFreeHost(hash);
 	CUDA_LOG_ERROR();
