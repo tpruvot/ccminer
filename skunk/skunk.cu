@@ -156,6 +156,7 @@ extern "C" int scanhash_skunk(int thr_id, struct work* work, uint32_t max_nonce,
 					uint32_t secNonce = work->nonces[1] = startNounce + h_resNonce[1];
 					be32enc(&endiandata[19], secNonce);
 					skunk_hash(vhash, endiandata);
+					work->nonces[1] = secNonce;
 					if (bn_hash_target_ratio(vhash, ptarget) > work->shareratio[0]) {
 						work_set_target_ratio(work, vhash);
 						xchg(work->nonces[1], work->nonces[0]);
