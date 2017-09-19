@@ -1,5 +1,4 @@
-ccminer
-=======
+# ccminer
 
 Based on Christian Buchner's &amp; Christian H.'s CUDA project, no more active on github since 2014.
 
@@ -22,9 +21,7 @@ About source code dependencies
 This project requires some libraries to be built :
 
 - OpenSSL (prebuilt for win)
-
 - Curl (prebuilt for win)
-
 - pthreads (prebuilt for win)
 
 The tree now contains recent prebuilt openssl and curl .lib for both x86 and x64 platforms (windows).
@@ -32,5 +29,28 @@ The tree now contains recent prebuilt openssl and curl .lib for both x86 and x64
 To rebuild them, you need to clone this repository and its submodules :
     git clone https://github.com/peters/curl-for-windows.git compat/curl-for-windows
 
-On Linux, you can use the helper ./build.sh (edit configure.sh and the Makefile.am if required)
 
+# Linux
+
+## Ubuntu
+
+Install dependencies
+```sudo apt-get install git libcurl4-openssl-dev nvidia-cuda-toolkit build-essential```
+
+Ubuntu is shipped with Gcc 7 so install Gcc 5 and make it the default
+
+```
+sudo apt-get install gcc-5 g++-5
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 1
+```
+Clone code
+```
+git clone https://github.com/tpruvot/ccminer.git
+cd ccminer
+```
+
+Use the helper ./build.sh  (edit configure.sh and the Makefile.am if required)
+```
+./build.sh
+./ccminer --version
+```
