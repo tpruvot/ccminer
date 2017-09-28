@@ -895,6 +895,7 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
 	}
 
 	/* discard if a newer block was received */
+	/*
 	stale_work = work->height && work->height < g_work.height;
 	if (have_stratum && !stale_work && opt_algo != ALGO_ZR5 && opt_algo != ALGO_SCRYPT_JANE) {
 		pthread_mutex_lock(&g_work_lock);
@@ -926,7 +927,7 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
 	if (!stale_work && opt_algo == ALGO_ZR5 && !have_stratum) {
 		stale_work = (memcmp(&work->data[1], &g_work.data[1], 68));
 	}
-
+*/
 	if (!submit_old && stale_work) {
 		if (opt_debug)
 			applog(LOG_WARNING, "stale work detected, discarding");
