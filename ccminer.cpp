@@ -267,6 +267,7 @@ Options:\n\
 			nist5       NIST5 (TalkCoin)\n\
 			penta       Pentablake hash (5x Blake 512)\n\
 			phi         BHCoin\n\
+			polytimos   Polytimos\n\
 			quark       Quark\n\
 			qubit       Qubit\n\
 			sha256d     SHA256d (bitcoin)\n\
@@ -2230,6 +2231,7 @@ static void *miner_thread(void *userdata)
 			case ALGO_HSR:
 			case ALGO_LYRA2v2:
 			case ALGO_PHI:
+			case ALGO_POLYTIMOS:
 			case ALGO_S3:
 			case ALGO_SKUNK:
 			case ALGO_TIMETRAVEL:
@@ -2416,6 +2418,9 @@ static void *miner_thread(void *userdata)
 			break;
 		case ALGO_PHI:
 			rc = scanhash_phi(thr_id, &work, max_nonce, &hashes_done);
+			break;
+		case ALGO_POLYTIMOS:
+			rc = scanhash_polytimos(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_SCRYPT:
 			rc = scanhash_scrypt(thr_id, &work, max_nonce, &hashes_done,

@@ -564,6 +564,7 @@
     <CudaCompile Include="x11\c11.cu" />
     <CudaCompile Include="x11\fresh.cu" />
     <CudaCompile Include="x11\phi.cu" />
+    <CudaCompile Include="x11\polytimos.cu" />
     <CudaCompile Include="x11\sib.cu" />
     <CudaCompile Include="x11\s3.cu" />
     <CudaCompile Include="x11\timetravel.cu" />
