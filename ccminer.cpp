@@ -267,6 +267,7 @@ Options:\n\
 			nist5       NIST5 (TalkCoin)\n\
 			penta       Pentablake hash (5x Blake 512)\n\
 			phi         BHCoin\n\
+			polytimos   Polytimos\n\
 			quark       Quark\n\
 			qubit       Qubit\n\
 			sha256d     SHA256d (bitcoin)\n\
