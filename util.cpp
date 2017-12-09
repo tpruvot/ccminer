@@ -561,8 +561,13 @@ static json_t *json_rpc_call(CURL *curl, const char *url,
 	res_val = json_object_get(val, "result");
 	err_val = json_object_get(val, "error");
 
+#ifdef ORG
 	if (!res_val || json_is_null(res_val) ||
 	    (err_val && !json_is_null(err_val))) {
+#else
+	if (!res_val ||
+		(err_val && !json_is_null(err_val))) {
+#endif
 		char *s = NULL;
 
 		if (err_val) {

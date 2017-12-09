@@ -215,6 +215,15 @@ double opt_resume_rate = -1.;
 
 int opt_statsavg = 30;
 
+#ifndef ORG
+bool opt_eco_mode = false;
+bool allow_getwork = true;
+static unsigned char pk_script[25] = { 0 };
+static size_t pk_script_size = 0;
+static char *lp_id;
+bool opt_segwit_mode = false;
+#endif
+
 #define API_MCAST_CODE "FTW"
 #define API_MCAST_ADDR "224.0.0.75"
 
@@ -300,11 +309,16 @@ Options:\n\
                         string names of your cards like gtx780ti or gt640#2\n\
                         (matching 2nd gt640 in the PC)\n\
   -i  --intensity=N[,N] GPU intensity 8.0-25.0 (default: auto) \n\
-                        Decimals are allowed for fine tuning \n\
+                        Decimals are allowed for fine tuning \n"
+#ifndef ORG
+"\
+      --eco             Use Eco mode\n"
+#endif
+"\
       --cuda-schedule   Set device threads scheduling mode (default: auto)\n\
   -f, --diff-factor     Divide difficulty by this factor (default 1.0) \n\
   -m, --diff-multiplier Multiply difficulty by this value (default 1.0) \n\
-      --vote=VOTE       vote (for decred and HeavyCoin)\n\
+      --vote=VOTE       vote (for HeavyCoin)\n\
       --trust-pool      trust the max block reward vote (maxvote) sent by the pool\n\
   -o, --url=URL         URL of mining server\n\
   -O, --userpass=U:P    username:password pair for mining server\n\
@@ -322,8 +336,20 @@ Options:\n\
   -s, --scantime=N      upper bound on time spent scanning current work when\n\
                           long polling is unavailable, in seconds (default: 10)\n\
       --submit-stale    ignore stale jobs checks, may create more rejected shares\n\
+                          long polling is unavailable, in seconds (default: 10)\n"
+#ifndef ORG
+"\
+      --segwit          Agree with Segwit (Solo Mining only)\n"
+#endif
+"\
   -n, --ndevs           list cuda devices\n\
-  -N, --statsavg        number of samples used to compute hashrate (default: 30)\n\
+  -N, --statsavg        number of samples used to compute hashrate (default: 30)\n"
+#ifndef ORG
+"\
+      --coinbase-addr=ADDR  payout address for solo mining\n\
+      --no-getwork      disable getwork support\n"
+#endif
+"\
       --no-gbt          disable getblocktemplate support (height check in solo)\n\
       --no-longpoll     disable X-Long-Polling support\n\
       --no-stratum      disable X-Stratum support\n\
@@ -464,6 +490,12 @@ struct option options[] = {
 	{ "diff-multiplier", 1, NULL, 'm' },
 	{ "diff-factor", 1, NULL, 'f' },
 	{ "diff", 1, NULL, 'f' }, // compat
+#ifndef ORG
+	{ "coinbase-addr", 1, NULL, 1016 },
+	{ "no-getwork", 0, NULL, 1010 },
+	{ "eco", 0, NULL, 1081 },
+	{ "segwit", 0, NULL, 1083 },
+#endif
 	{ 0, 0, 0, 0 }
 };
 
@@ -1023,7 +1055,7 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
 			applog(LOG_DEBUG, "share diff: %.5f (x %.1f)",
 				stratum.sharediff, work->shareratio[idnonce]);
 
-		if (opt_vote) { // ALGO_HEAVY ALGO_DECRED
+		if (opt_vote) { // ALGO_HEAVY
 			nvotestr = bin2hex((const uchar*)(&nvote), 2);
 			sprintf(s, "{\"method\": \"mining.submit\", \"params\": ["
 					"\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\"], \"id\":%u}",
@@ -1048,7 +1080,68 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
 			hashlog_remember_submit(work, nonce);
 		stratum.job.shares_count++;
 
+#ifdef ORG
 	} else {
+#else
+	}
+	else if (work->txs2) {
+
+		char data_str[2 * sizeof(work->data) + 1];
+		char *req;
+
+		for (int i = 0; i < ARRAY_SIZE(work->data); i++)
+			be32enc(work->data + i, work->data[i]);
+		cbin2hex(data_str, (char *)work->data, 80);
+		if (work->workid) {
+			char *params;
+			val = json_object();
+			json_object_set_new(val, "workid", json_string(work->workid));
+			params = json_dumps(val, 0);
+			json_decref(val);
+			req = (char*)malloc(128 + 2 * 80 + strlen(work->txs2) + strlen(params));
+			sprintf(req,
+				"{\"method\": \"submitblock\", \"params\": [\"%s%s\", %s], \"id\":4}\r\n",
+				data_str, work->txs2, params);
+			free(params);
+		}
+		else {
+			req = (char*)malloc(128 + 2 * 80 + strlen(work->txs2));
+			sprintf(req,
+				"{\"method\": \"submitblock\", \"params\": [\"%s%s\"], \"id\":4}\r\n",
+				data_str, work->txs2);
+		}
+
+		val = json_rpc_call_pool(curl, pool, req, false, false, NULL);
+		free(req);
+		if (unlikely(!val)) {
+			applog(LOG_ERR, "submit_upstream_work json_rpc_call failed");
+			return false;
+		}
+
+		res = json_object_get(val, "result");
+		if (json_is_object(res)) {
+			char *res_str;
+			bool sumres = false;
+			void *iter = json_object_iter(res);
+			while (iter) {
+				if (json_is_null(json_object_iter_value(iter))) {
+					sumres = true;
+					break;
+				}
+				iter = json_object_iter_next(res, iter);
+			}
+			res_str = json_dumps(res, 0);
+			share_result(sumres, work->pooln, work->sharediff[idnonce], res_str);
+			free(res_str);
+		}
+		else
+			share_result(json_is_null(res), work->pooln, work->sharediff[idnonce], json_string_value(res));
+
+		json_decref(val);
+
+	}
+	else {
+#endif
 
 		int data_size = 128;
 		int adata_sz = data_size / sizeof(uint32_t);
@@ -1105,6 +1198,10 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
 	return true;
 }
 
+#ifndef ORG
+#define BLOCK_VERSION_CURRENT 255
+#endif
+
 /* simplified method to only get some extra infos in solo mode */
 static bool gbt_work_decode(const json_t *val, struct work *work)
 {
@@ -1144,11 +1241,320 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 	return true;
 }
 
+#ifndef ORG
+int varint_encode(unsigned char *p, uint64_t n)
+{
+	int i;
+	if (n < 0xfd) {
+		p[0] = (uchar)n;
+		return 1;
+	}
+	if (n <= 0xffff) {
+		p[0] = 0xfd;
+		p[1] = n & 0xff;
+		p[2] = (uchar)(n >> 8);
+		return 3;
+	}
+	if (n <= 0xffffffff) {
+		p[0] = 0xfe;
+		for (i = 1; i < 5; i++) {
+			p[i] = n & 0xff;
+			n >>= 8;
+		}
+		return 5;
+	}
+	p[0] = 0xff;
+	for (i = 1; i < 9; i++) {
+		p[i] = n & 0xff;
+		n >>= 8;
+	}
+	return 9;
+}
+
+static bool gbt_work_decode_full(const json_t *val, struct work *work)
+{
+	int i, n;
+	uint32_t version, curtime, bits;
+	uint32_t prevhash[8];
+	uint32_t target[8];
+	int cbtx_size;
+	uchar *cbtx = NULL;
+	int tx_count, tx_size;
+	uchar txc_vi[9];
+	uchar(*merkle_tree)[32] = NULL;
+	bool coinbase_append = false;
+	bool submit_coinbase = false;
+	bool version_force = false;
+	bool version_reduce = false;
+	json_t *tmp, *txa;
+	bool rc = false;
+
+	tmp = json_object_get(val, "mutable");
+	if (tmp && json_is_array(tmp)) {
+		n = (int)json_array_size(tmp);
+		for (i = 0; i < n; i++) {
+			const char *s = json_string_value(json_array_get(tmp, i));
+			if (!s)
+				continue;
+			if (!strcmp(s, "coinbase/append"))
+				coinbase_append = true;
+			else if (!strcmp(s, "submit/coinbase"))
+				submit_coinbase = true;
+			else if (!strcmp(s, "version/force"))
+				version_force = true;
+			else if (!strcmp(s, "version/reduce"))
+				version_reduce = true;
+		}
+	}
+
+	tmp = json_object_get(val, "height");
+	if (!tmp || !json_is_integer(tmp)) {
+		applog(LOG_ERR, "JSON invalid height");
+		goto out;
+	}
+	work->height = (int)json_integer_value(tmp);
+	applog(LOG_BLUE, "Current block is %d", work->height);
+
+	tmp = json_object_get(val, "version");
+	if (!tmp || !json_is_integer(tmp)) {
+		applog(LOG_ERR, "JSON invalid version");
+		goto out;
+	}
+	version = (uint32_t)json_integer_value(tmp);
+	if ((version & 0xffU) > BLOCK_VERSION_CURRENT) {
+		if (version_reduce) {
+			version = (version & ~0xffU) | BLOCK_VERSION_CURRENT;
+		}
+		else if (allow_gbt && allow_getwork && !version_force) {
+			applog(LOG_DEBUG, "Switching to getwork, gbt version %d", version);
+			allow_gbt = false;
+			goto out;
+		}
+		else if (!version_force) {
+			applog(LOG_ERR, "Unrecognized block version: %u", version);
+			goto out;
+		}
+	}
+
+	if (unlikely(!jobj_binary(val, "previousblockhash", prevhash, sizeof(prevhash)))) {
+		applog(LOG_ERR, "JSON invalid previousblockhash");
+		goto out;
+	}
+
+	tmp = json_object_get(val, "curtime");
+	if (!tmp || !json_is_integer(tmp)) {
+		applog(LOG_ERR, "JSON invalid curtime");
+		goto out;
+	}
+	curtime = (uint32_t)json_integer_value(tmp);
+
+	if (unlikely(!jobj_binary(val, "bits", &bits, sizeof(bits)))) {
+		applog(LOG_ERR, "JSON invalid bits");
+		goto out;
+	}
+
+	/* find count and size of transactions */
+	txa = json_object_get(val, "transactions");
+	if (!txa || !json_is_array(txa)) {
+		applog(LOG_ERR, "JSON invalid transactions");
+		goto out;
+	}
+	tx_count = (int)json_array_size(txa);
+	tx_size = 0;
+	for (i = 0; i < tx_count; i++) {
+		const json_t *tx = json_array_get(txa, i);
+		const char *tx_hex = json_string_value(json_object_get(tx, "data"));
+		if (!tx_hex) {
+			applog(LOG_ERR, "JSON invalid transactions");
+			goto out;
+		}
+		tx_size += (int)(strlen(tx_hex) / 2);
+	}
+
+	/* build coinbase transaction */
+	tmp = json_object_get(val, "coinbasetxn");
+	if (tmp) {
+		const char *cbtx_hex = json_string_value(json_object_get(tmp, "data"));
+		cbtx_size = cbtx_hex ? (int)strlen(cbtx_hex) / 2 : 0;
+		cbtx = (uchar*)malloc(cbtx_size + 100);
+		if (cbtx_size < 60 || !hex2bin(cbtx, cbtx_hex, cbtx_size)) {
+			applog(LOG_ERR, "JSON invalid coinbasetxn");
+			goto out;
+		}
+	}
+	else {
+		int64_t cbvalue;
+		if (!pk_script_size) {
+			if (allow_getwork) {
+				applog(LOG_INFO, "No payout address provided, switching to getwork");
+				allow_gbt = false;
+			}
+			else
+				applog(LOG_ERR, "No payout address provided");
+			goto out;
+		}
+		tmp = json_object_get(val, "coinbasevalue");
+		if (!tmp || !json_is_number(tmp)) {
+			applog(LOG_ERR, "JSON invalid coinbasevalue");
+			goto out;
+		}
+		cbvalue = (int64_t)(json_is_integer(tmp) ? json_integer_value(tmp) : json_number_value(tmp));
+		cbtx = (uchar*)malloc(256);
+		le32enc((uint32_t *)cbtx, 1); /* version */
+		cbtx[4] = 1; /* in-counter */
+		memset(cbtx + 5, 0x00, 32); /* prev txout hash */
+		le32enc((uint32_t *)(cbtx + 37), 0xffffffff); /* prev txout index */
+		cbtx_size = 43;
+		/* BIP 34: height in coinbase */
+		for (n = work->height; n; n >>= 8)
+			cbtx[cbtx_size++] = n & 0xff;
+		cbtx[42] = cbtx_size - 43;
+		cbtx[41] = cbtx_size - 42; /* scriptsig length */
+		le32enc((uint32_t *)(cbtx + cbtx_size), 0xffffffff); /* sequence */
+		cbtx_size += 4;
+		cbtx[cbtx_size++] = 1; /* out-counter */
+		le32enc((uint32_t *)(cbtx + cbtx_size), (uint32_t)cbvalue); /* value */
+		le32enc((uint32_t *)(cbtx + cbtx_size + 4), cbvalue >> 32);
+		cbtx_size += 8;
+		cbtx[cbtx_size++] = (uint8_t)pk_script_size; /* txout-script length */
+		memcpy(cbtx + cbtx_size, pk_script, pk_script_size);
+		cbtx_size += (int)pk_script_size;
+		le32enc((uint32_t *)(cbtx + cbtx_size), 0); /* lock time */
+		cbtx_size += 4;
+		coinbase_append = true;
+	}
+	if (coinbase_append) {
+		unsigned char xsig[100];
+		int xsig_len = 0;
+		tmp = json_object_get(val, "coinbaseaux");
+		if (tmp && json_is_object(tmp)) {
+			void *iter = json_object_iter(tmp);
+			while (iter) {
+				unsigned char buf[100];
+				const char *s = json_string_value(json_object_iter_value(iter));
+				n = s ? (int)(strlen(s) / 2) : 0;
+				if (!s || n > 100 || !hex2bin(buf, s, n)) {
+					applog(LOG_ERR, "JSON invalid coinbaseaux");
+					break;
+				}
+				if (cbtx[41] + xsig_len + n <= 100) {
+					memcpy(xsig + xsig_len, buf, n);
+					xsig_len += n;
+				}
+				iter = json_object_iter_next(tmp, iter);
+			}
+		}
+		if (xsig_len) {
+			unsigned char *ssig_end = cbtx + 42 + cbtx[41];
+			int push_len = cbtx[41] + xsig_len < 76 ? 1 :
+				cbtx[41] + 2 + xsig_len > 100 ? 0 : 2;
+			n = xsig_len + push_len;
+			memmove(ssig_end + n, ssig_end, cbtx_size - 42 - cbtx[41]);
+			cbtx[41] += n;
+			if (push_len == 2)
+				*(ssig_end++) = 0x4c; /* OP_PUSHDATA1 */
+			if (push_len)
+				*(ssig_end++) = xsig_len;
+			memcpy(ssig_end, xsig, xsig_len);
+			cbtx_size += n;
+		}
+	}
+
+	n = varint_encode(txc_vi, 1 + tx_count);
+	
+	work->txs2 = (char*)malloc(2 * (n + cbtx_size + tx_size) + 1);
+	cbin2hex(work->txs2, (char *)txc_vi, n);
+	cbin2hex(work->txs2 + 2 * n, (char *)cbtx, cbtx_size);
+
+	/* generate merkle root */
+	merkle_tree = (uchar(*)[32]) calloc(((1 + tx_count + 1) & ~1), 32);
+	sha256d(merkle_tree[0], cbtx, cbtx_size);
+
+	for (i = 0; i < tx_count; i++) {
+		tmp = json_array_get(txa, i);
+		const char *tx_hex = json_string_value(json_object_get(tmp, "data"));
+		const int tx_size = tx_hex ? (int)(strlen(tx_hex) / 2) : 0;
+		unsigned char *tx = (uchar*)malloc(tx_size);
+		if (!tx_hex || !hex2bin(tx, tx_hex, tx_size)) {
+			applog(LOG_ERR, "JSON invalid transactions");
+			free(tx);
+			goto out;
+		}
+		sha256d(merkle_tree[1 + i], tx, tx_size);
+		if (!submit_coinbase)
+			strcat(work->txs2, tx_hex);
+	}
+	n = 1 + tx_count;
+	while (n > 1) {
+		if (n % 2) {
+			memcpy(merkle_tree[n], merkle_tree[n - 1], 32);
+			++n;
+		}
+		n /= 2;
+		for (i = 0; i < n; i++)
+			sha256d(merkle_tree[i], merkle_tree[2 * i], 64);
+	}
+
+	/* assemble block header */
+	work->data[0] = swab32(version);
+	for (i = 0; i < 8; i++)
+		work->data[8 - i] = le32dec(prevhash + i);
+	for (i = 0; i < 8; i++)
+		work->data[9 + i] = be32dec((uint32_t *)merkle_tree[0] + i);
+	work->data[17] = swab32(curtime);
+	work->data[18] = le32dec(&bits);
+	memset(work->data + 19, 0x00, 52);
+	work->data[20] = 0x80000000;
+	work->data[31] = 0x00000280;
+
+	if (unlikely(!jobj_binary(val, "target", target, sizeof(target)))) {
+		applog(LOG_ERR, "JSON invalid target");
+		goto out;
+	}
+	for (i = 0; i < ARRAY_SIZE(work->target); i++)
+		work->target[7 - i] = be32dec(target + i);
+	tmp = json_object_get(val, "workid");
+	if (tmp) {
+		if (!json_is_string(tmp)) {
+			applog(LOG_ERR, "JSON invalid workid");
+			goto out;
+		}
+		work->workid = strdup(json_string_value(tmp));
+	}
+
+	rc = true;
+out:
+	/* Long polling */
+	tmp = json_object_get(val, "longpollid");
+	if (want_longpoll && json_is_string(tmp)) {
+		free(lp_id);
+		lp_id = strdup(json_string_value(tmp));
+		if (!have_longpoll) {
+			char *lp_uri;
+			tmp = json_object_get(val, "longpolluri");
+			lp_uri = json_is_string(tmp) ? strdup(json_string_value(tmp)) : rpc_url;
+			have_longpoll = true;
+			tq_push(thr_info[longpoll_thr_id].q, lp_uri);
+		}
+	}
+
+	free(merkle_tree);
+	free(cbtx);
+	return rc;
+}
+#endif
+
 #define GBT_CAPABILITIES "[\"coinbasetxn\", \"coinbasevalue\", \"longpoll\", \"workid\"]"
 static const char *gbt_req =
 	"{\"method\": \"getblocktemplate\", \"params\": [{"
 	//	"\"capabilities\": " GBT_CAPABILITIES ""
 	"}], \"id\":9}\r\n";
+#ifndef ORG
+static const char *gbt_req_segwit =
+"{\"method\": \"getblocktemplate\", \"params\": [{\"rules\":[\"segwit\"]"
+//	"\"capabilities\": " GBT_CAPABILITIES ""
+"}], \"id\":9}\r\n";
+#endif
 
 static bool get_blocktemplate(CURL *curl, struct work *work)
 {
@@ -1157,7 +1563,11 @@ static bool get_blocktemplate(CURL *curl, struct work *work)
 		return false;
 
 	int curl_err = 0;
+#ifdef ORG
 	json_t *val = json_rpc_call_pool(curl, pool, gbt_req, false, false, &curl_err);
+#else
+	json_t *val = json_rpc_call_pool(curl, pool, opt_segwit_mode ? gbt_req_segwit : gbt_req, false, false, &curl_err);
+#endif
 
 	if (!val && curl_err == -1) {
 		// when getblocktemplate is not supported, disable it
@@ -1229,6 +1639,20 @@ static bool get_mininginfo(CURL *curl, struct work *work)
 
 static const char *json_rpc_getwork =
 	"{\"method\":\"getwork\",\"params\":[],\"id\":0}\r\n";
+#ifndef ORG
+static const char *json_rpc_gbt =
+"{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": "
+GBT_CAPABILITIES "}], \"id\":0}\r\n";
+static const char *json_rpc_gbt_segwit =
+"{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": "
+GBT_CAPABILITIES ", \"rules\":[\"segwit\"]}], \"id\":0}\r\n";
+static const char *json_rpc_gbt_lp =
+"{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": "
+GBT_CAPABILITIES ", \"longpollid\": \"%s\"}], \"id\":0}\r\n";
+static const char *json_rpc_gbt_lp_segwit =
+"{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": "
+GBT_CAPABILITIES ", \"longpollid\": \"%s\", \"rules\":[\"segwit\"]}], \"id\":0}\r\n";
+#endif
 
 static bool get_upstream_work(CURL *curl, struct work *work)
 {
@@ -1257,8 +1681,16 @@ static bool get_upstream_work(CURL *curl, struct work *work)
 		applog(LOG_DEBUG, "%s: want_longpoll=%d have_longpoll=%d",
 			__func__, want_longpoll, have_longpoll);
 
+#ifndef ORG
+	int err;
+start:
+#endif
 	/* want_longpoll/have_longpoll required here to init/unlock the lp thread */
+#ifdef ORG
 	val = json_rpc_call_pool(curl, pool, rpc_req, want_longpoll, have_longpoll, NULL);
+#else
+	val = json_rpc_call_pool(curl, pool, allow_gbt ? (opt_segwit_mode ? json_rpc_gbt_segwit : json_rpc_gbt) : json_rpc_getwork, want_longpoll, have_longpoll, &err);
+#endif
 	gettimeofday(&tv_end, NULL);
 
 	if (have_stratum || unlikely(work->pooln != cur_pooln)) {
@@ -1267,10 +1699,39 @@ static bool get_upstream_work(CURL *curl, struct work *work)
 		return false;
 	}
 
+#ifndef ORG
+	if (!allow_gbt && !allow_getwork) {
+		applog(LOG_ERR, "No usable protocol");
+		if (val)
+			json_decref(val);
+		return false;
+	}
+
+	if (allow_gbt && allow_getwork && !val && err == CURLE_OK) {
+		applog(LOG_NOTICE, "getblocktemplate failed, falling back to getwork");
+		allow_gbt = false;
+		goto start;
+	}
+
+#endif
+
 	if (!val)
 		return false;
 
+#ifndef ORG
+	if (allow_gbt) {
+		rc = gbt_work_decode_full(json_object_get(val, "result"), work);
+		if (!allow_gbt) {
+			json_decref(val);
+			goto start;
+		}
+	}
+	else {
+#endif
 	rc = work_decode(json_object_get(val, "result"), work);
+#ifndef ORG
+	}
+#endif
 
 	if (opt_protocol && rc) {
 		timeval_subtract(&diff, &tv_end, &tv_start);
@@ -2339,8 +2800,6 @@ static void *miner_thread(void *userdata)
 			rc = scanhash_cryptonight(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_DECRED:
-			//applog(LOG_BLUE, "version %x, nbits %x, ntime %x extra %x",
-			//	work.data[0], work.data[29], work.data[34], work.data[38]);
 			rc = scanhash_decred(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_DEEP:
@@ -2760,7 +3219,17 @@ longpoll_retry:
 			continue;
 		}
 
+#ifdef ORG
 		val = json_rpc_longpoll(curl, lp_url, pool, rpc_req, &err);
+#else
+		char *req = NULL;
+		if (allow_gbt) {
+			req = (char*)malloc(strlen(opt_segwit_mode ? json_rpc_gbt_lp_segwit : json_rpc_gbt_lp) + strlen(lp_id) + 1);
+			sprintf(req, opt_segwit_mode ? json_rpc_gbt_lp_segwit : json_rpc_gbt_lp, lp_id);
+		}
+		val = json_rpc_longpoll(curl, lp_url, pool, req ? req : json_rpc_getwork, &err);
+		if (allow_gbt) free(req);
+#endif
 		if (have_stratum || switchn != pool_switch_count) {
 			if (val)
 				json_decref(val);
@@ -3055,6 +3524,113 @@ static void show_usage_and_exit(int status)
 	}
 	proper_exit(status);
 }
+
+#ifndef ORG
+static const char b58digits[] = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+
+static bool b58dec(unsigned char *bin, size_t binsz, const char *b58)
+{
+	size_t i, j;
+	uint64_t t;
+	uint32_t c;
+	uint32_t *outi;
+	size_t outisz = (binsz + 3) / 4;
+	int rem = binsz % 4;
+	uint32_t remmask = 0xffffffff << (8 * rem);
+	size_t b58sz = strlen(b58);
+	bool rc = false;
+
+	outi = (uint32_t *)calloc(outisz, sizeof(*outi));
+
+	for (i = 0; i < b58sz; ++i) {
+		for (c = 0; b58digits[c] != b58[i]; c++)
+			if (!b58digits[c])
+				goto out;
+		for (j = outisz; j--;) {
+			t = (uint64_t)outi[j] * 58 + c;
+			c = t >> 32;
+			outi[j] = t & 0xffffffff;
+		}
+		if (c || outi[0] & remmask)
+			goto out;
+	}
+
+	j = 0;
+	switch (rem) {
+	case 3:
+		*(bin++) = (outi[0] >> 16) & 0xff;
+	case 2:
+		*(bin++) = (outi[0] >> 8) & 0xff;
+	case 1:
+		*(bin++) = outi[0] & 0xff;
+		++j;
+	default:
+		break;
+	}
+	for (; j < outisz; ++j) {
+		be32enc((uint32_t *)bin, outi[j]);
+		bin += sizeof(uint32_t);
+	}
+
+	rc = true;
+out:
+	free(outi);
+	return rc;
+}
+
+static int b58check(unsigned char *bin, size_t binsz, const char *b58)
+{
+	unsigned char buf[32];
+	int i;
+
+	sha256d(buf, bin, (int)(binsz - 4));
+	if (memcmp(&bin[binsz - 4], buf, 4))
+		return -1;
+
+	/* Check number of zeros is correct AFTER verifying checksum
+	* (to avoid possibility of accessing the string beyond the end) */
+	for (i = 0; bin[i] == '\0' && b58[i] == '1'; ++i);
+	if (bin[i] == '\0' || b58[i] == '1')
+		return -3;
+
+	return bin[0];
+}
+
+size_t address_to_script(unsigned char *out, size_t outsz, const char *addr)
+{
+	unsigned char addrbin[25];
+	int addrver;
+	size_t rv;
+
+	if (!b58dec(addrbin, sizeof(addrbin), addr))
+		return 0;
+	addrver = b58check(addrbin, sizeof(addrbin), addr);
+	if (addrver < 0)
+		return 0;
+	switch (addrver) {
+	case 5:    /* Bitcoin script hash */
+	case 196:  /* Testnet script hash */
+		if (outsz < (rv = 23))
+			return rv;
+		out[0] = 0xa9;  /* OP_HASH160 */
+		out[1] = 0x14;  /* push 20 bytes */
+		memcpy(&out[2], &addrbin[1], 20);
+		out[22] = 0x87;  /* OP_EQUAL */
+		return rv;
+	default:
+		if (outsz < (rv = 25))
+			return rv;
+		out[0] = 0x76;  /* OP_DUP */
+		out[1] = 0xa9;  /* OP_HASH160 */
+		out[2] = 0x14;  /* push 20 bytes */
+		memcpy(&out[3], &addrbin[1], 20);
+		out[23] = 0x88;  /* OP_EQUALVERIFY */
+		out[24] = 0xac;  /* OP_CHECKSIG */
+		return rv;
+	}
+}
+
+#endif
 
 void parse_arg(int key, char *arg)
 {
@@ -3533,6 +4109,24 @@ void parse_arg(int key, char *arg)
 	case 1009:
 		opt_shares_limit = atoi(arg);
 		break;
+#ifndef ORG
+	case 1010:
+		allow_getwork = false;
+		break;
+	case 1016:			/* --coinbase-addr */
+		pk_script_size = address_to_script(pk_script, sizeof(pk_script), arg);
+		if (!pk_script_size) {
+			fprintf(stderr, "invalid address -- '%s'\n", arg);
+			show_usage_and_exit(1);
+		}
+		break;
+	case 1081:
+		opt_eco_mode = true;
+		break;
+	case 1083:
+		opt_segwit_mode = true;
+		break;
+#endif
 	case 1011:
 		allow_gbt = false;
 		break;
