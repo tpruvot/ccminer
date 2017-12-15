@@ -901,7 +901,7 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
 
 	/* discard if a newer block was received */
 	stale_work = work->height && work->height < g_work.height;
-	if (have_stratum && !stale_work && !opt_submit_stale && opt_algo != ALGO_ZR5 && opt_algo != ALGO_SCRYPT_JANE && opt_algo != ALGO_LYRA2Z) {
+	if (have_stratum && !stale_work && !opt_submit_stale && opt_algo != ALGO_ZR5 && opt_algo != ALGO_SCRYPT_JANE) {
 		pthread_mutex_lock(&g_work_lock);
 		if (strlen(work->job_id + 8))
 			stale_work = strncmp(work->job_id + 8, g_work.job_id + 8, sizeof(g_work.job_id) - 8);
