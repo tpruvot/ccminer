@@ -3977,6 +3977,10 @@ int main(int argc, char *argv[])
 		GetScratchpad();
 	}
 
+	if (opt_algo == ALGO_LYRA2Z && !opt_submit_stale) {
+		if (!opt_quiet) applog(LOG_WARNING, "You should consider using --submit-stale when mining Lyra2Z");
+	}
+
 	flags = !opt_benchmark && strncmp(rpc_url, "https:", 6)
 	      ? (CURL_GLOBAL_ALL & ~CURL_GLOBAL_SSL)
 	      : CURL_GLOBAL_ALL;
