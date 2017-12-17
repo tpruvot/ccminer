@@ -80,6 +80,74 @@ make -j 8 && make install
 ./ccminer -n
 
 
+** How to compile and run on Debian Stretch **
+
+```
+$ sudo apt install nvidia-cuda-toolkit
+
+# ccminer is incompatible with openssl >= 1.1.0, because
+# BN_init was removed in openssl 1.1.0
+# (see https://wiki.openssl.org/index.php/Manual:BN_new(3) if you want)
+# You can install both openssl 1.1.x and 1.0.x on Debian Stretch,
+# you need 1.0.x for ccminer
+
+$ sudo apt install libssl1.0-dev libssl1.0.2
+
+# You need to use nvcc to compile ccminer
+# nvcc needs gcc or clang to work
+# nvcc + clang is incompatible with ccminer (errors with -fPIC will appear)
+# GCC of version >= 6 is incompatible with nvcc
+# therefore you need to install GCC-5
+# it's not available in Debian Stretch repos
+# you can temporarily add Debian Unstable repos to install it
+# add the following lines to /etc/apt/sources.list to enable debian
+# unstable repos:
+
+deb http://mirror.yandex.ru/debian/ sid main contrib non-free
+deb-src http://mirror.yandex.ru/debian/ sid main contrib non-free
+
+# now you can do
+
+$ sudo apt update
+$ sudo apt install gcc-5 g++-5
+
+# now remove those 2 lines or comment them out to disable debian unstable repos
+
+# Now it's time to configure ccminer's build process
+
+$ git clone https://github.com/tpruvot/ccminer
+$ cd ccminer
+# read README.md, INSTALL, build.sh
+
+# uncomment the required line in Makefile.am 
+# according to https://github.com/tpruvot/ccminer/wiki/Compatibility
+
+# you need to replace some values in configure.sh to have the following result:
+# you need to set --with-cuda=/usr/lib/nvidia-cuda-toolkit
+# and CXX=g++-5 in configure.sh
+# the result should be as follows:
+
+$ git diff configure.sh
+diff --git a/configure.sh b/configure.sh
+index a4c4f46..2c17df7 100755
+--- a/configure.sh
++++ b/configure.sh
+@@ -3,5 +3,5 @@
+ extracflags="-march=native -D_REENTRANT -falign-functions=16 -falign-jumps=16 -falign-labels=16"
+
+ CUDA_CFLAGS="-O3 -lineno -Xcompiler -Wall  -D_FORCE_INLINES" \
+-       ./configure CXXFLAGS="-O3 $extracflags" --with-cuda=/usr/local/cuda --with-nvml=libnvidia-ml.so
++       ./configure CXXFLAGS="-O3 $extracflags" --with-cuda=/usr/lib/nvidia-cuda-toolkit/ --with-nvml=libnvidia-ml.so CXX=g++-5
+
+# now you can build everything
+
+$ ./autogen.sh
+$ ./configure.sh
+$ make -j9
+
+# now you have ccminer executable file in this directory, congratulations
+```
+
 ** How to compile on macOS **
 
 # Step 1: download and install CUDA Toolkit 8 or more recent
