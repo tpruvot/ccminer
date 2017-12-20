@@ -11,7 +11,7 @@ but some distros may have a different default location)
 
 ** How to compile on Ubuntu (16.04 LTS)
 
-First, install Cuda toolkit and nVidia Driver, and type `nvidia-smi` to check if your card is detected.
+First, install Cuda toolkit (`sudo apt-get install nvidia-cuda-toolkit`) and nVidia Driver, and type `nvidia-smi` to check if your card is detected.
 
 Install dependencies
 ```sudo apt-get install libcurl4-openssl-dev libssl-dev libjansson-dev automake autotools-dev build-essential```
