@@ -1,0 +1,3 @@
+[submodule "compat/curl-for-windows"]
+	path = compat/curl-for-windows
+	url = https://github.com/gelotus/curl-for-windows
