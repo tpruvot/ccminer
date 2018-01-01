@@ -6,7 +6,7 @@
 #ifndef BITCOIN_BIGNUM_H
 #define BITCOIN_BIGNUM_H
 
-#include "serialize.h"
+#include "serialize.hpp"
 #include "uint256.h"
 #include "version.h"
 
