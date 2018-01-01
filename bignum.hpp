@@ -8,7 +8,6 @@
 
 #include "serialize.hpp"
 #include "uint256.h"
-#include "version.h"
 
 #include <stdexcept>
 #include <stdint.h>
