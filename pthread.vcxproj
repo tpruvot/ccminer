@@ -1,0 +1,491 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>pthread</ProjectName>
+    <ProjectGuid>{A063DFAD-6995-4E1A-AFFF-E43DC11E95B1}</ProjectGuid>
+    <RootNamespace>pthread</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\$(Platform)\lib\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\$(Platform)\obj\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Configuration)\$(Platform)\lib\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Configuration)\$(Platform)\obj\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\$(Platform)\lib\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\$(Platform)\obj\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Configuration)\$(Platform)\lib\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)\$(Platform)\obj\$(ProjectName)\</IntDir>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <CustomBuildStep>
+      <Command>
+      </Command>
+      <Inputs>%(Inputs)</Inputs>
+      <Outputs>%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;__CLEANUP_SEH;WIN32;NDEBUG;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4820;4668;4255;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MinimalRebuild>false</MinimalRebuild>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;PTW32_RC_MSC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetMachine>MachineX86</TargetMachine>
+      <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <CustomBuildStep>
+      <Command>
+      </Command>
+      <Inputs>%(Inputs)</Inputs>
+      <Outputs>%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>.;compat/pthreads;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;WIN64;_WIN64;__CLEANUP_SEH;WIN32;NDEBUG;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>
+      </EnableEnhancedInstructionSet>
+      <WarningLevel>Level1</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4820;4668;4255;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MinimalRebuild>false</MinimalRebuild>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;PTW32_RC_MSC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>.;compat/pthreads;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetMachine>MachineX64</TargetMachine>
+      <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <CustomBuildStep>
+      <Command>
+      </Command>
+      <Inputs>%(Inputs)</Inputs>
+      <Outputs>%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\./pthread.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>.;compat/pthreads;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;__CLEANUP_SEH;WIN32;_DEBUG;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4820;4668;4255;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;PTW32_RC_MSC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>.;compat/pthreads;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetMachine>MachineX86</TargetMachine>
+      <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <CustomBuildStep>
+      <Command>
+      </Command>
+      <Inputs>%(Inputs)</Inputs>
+      <Outputs>%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>.;compat/pthreads;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;WIN64;_WIN64;__CLEANUP_SEH;WIN32;_DEBUG;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>
+      </EnableEnhancedInstructionSet>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4820;4668;4255;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <OmitFramePointers>false</OmitFramePointers>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;PTW32_RC_MSC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>.;compat/pthreads;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetMachine>MachineX64</TargetMachine>
+      <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;compat/pthreads;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;__CLEANUP_SEH;WIN32;NDEBUG;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;PTW32_RC_MSC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;compat/pthreads;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="compat/pthreads/autostatic.c" />
+    <ClCompile Include="compat/pthreads/cleanup.c" />
+    <ClCompile Include="compat/pthreads/create.c" />
+    <ClCompile Include="compat/pthreads/dll.c" />
+    <ClCompile Include="compat/pthreads/errno.c" />
+    <ClCompile Include="compat/pthreads/global.c" />
+    <ClCompile Include="compat/pthreads/pthread.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="compat/pthreads/pthread_attr_destroy.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_getdetachstate.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_getinheritsched.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_getschedparam.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_getschedpolicy.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_getscope.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_getstackaddr.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_getstacksize.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_init.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_setdetachstate.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_setinheritsched.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_setschedparam.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_setschedpolicy.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_setscope.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_setstackaddr.c" />
+    <ClCompile Include="compat/pthreads/pthread_attr_setstacksize.c" />
+    <ClCompile Include="compat/pthreads/pthread_barrier_destroy.c" />
+    <ClCompile Include="compat/pthreads/pthread_barrier_init.c" />
+    <ClCompile Include="compat/pthreads/pthread_barrier_wait.c" />
+    <ClCompile Include="compat/pthreads/pthread_barrierattr_destroy.c" />
+    <ClCompile Include="compat/pthreads/pthread_barrierattr_getpshared.c" />
+    <ClCompile Include="compat/pthreads/pthread_barrierattr_init.c" />
+    <ClCompile Include="compat/pthreads/pthread_barrierattr_setpshared.c" />
+    <ClCompile Include="compat/pthreads/pthread_cancel.c" />
+    <ClCompile Include="compat/pthreads/pthread_cond_destroy.c" />
+    <ClCompile Include="compat/pthreads/pthread_cond_init.c" />
+    <ClCompile Include="compat/pthreads/pthread_cond_signal.c" />
+    <ClCompile Include="compat/pthreads/pthread_cond_wait.c" />
+    <ClCompile Include="compat/pthreads/pthread_condattr_destroy.c" />
+    <ClCompile Include="compat/pthreads/pthread_condattr_getpshared.c" />
+    <ClCompile Include="compat/pthreads/pthread_condattr_init.c" />
+    <ClCompile Include="compat/pthreads/pthread_condattr_setpshared.c" />
+    <ClCompile Include="compat/pthreads/pthread_delay_np.c" />
+    <ClCompile Include="compat/pthreads/pthread_detach.c" />
+    <ClCompile Include="compat/pthreads/pthread_equal.c" />
+    <ClCompile Include="compat/pthreads/pthread_exit.c" />
+    <ClCompile Include="compat/pthreads/pthread_getconcurrency.c" />
+    <ClCompile Include="compat/pthreads/pthread_getschedparam.c" />
+    <ClCompile Include="compat/pthreads/pthread_getspecific.c" />
+    <ClCompile Include="compat/pthreads/pthread_getunique_np.c" />
+    <ClCompile Include="compat/pthreads/pthread_getw32threadhandle_np.c" />
+    <ClCompile Include="compat/pthreads/pthread_join.c" />
+    <ClCompile Include="compat/pthreads/pthread_key_create.c" />
+    <ClCompile Include="compat/pthreads/pthread_key_delete.c" />
+    <ClCompile Include="compat/pthreads/pthread_kill.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutex_consistent.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutex_destroy.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutex_init.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutex_lock.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutex_timedlock.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutex_trylock.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutex_unlock.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutexattr_destroy.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutexattr_getkind_np.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutexattr_getpshared.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutexattr_getrobust.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutexattr_gettype.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutexattr_init.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutexattr_setkind_np.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutexattr_setpshared.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutexattr_setrobust.c" />
+    <ClCompile Include="compat/pthreads/pthread_mutexattr_settype.c" />
+    <ClCompile Include="compat/pthreads/pthread_num_processors_np.c" />
+    <ClCompile Include="compat/pthreads/pthread_once.c" />
+    <ClCompile Include="compat/pthreads/pthread_rwlock_destroy.c" />
+    <ClCompile Include="compat/pthreads/pthread_rwlock_init.c" />
+    <ClCompile Include="compat/pthreads/pthread_rwlock_rdlock.c" />
+    <ClCompile Include="compat/pthreads/pthread_rwlock_timedrdlock.c" />
+    <ClCompile Include="compat/pthreads/pthread_rwlock_timedwrlock.c" />
+    <ClCompile Include="compat/pthreads/pthread_rwlock_tryrdlock.c" />
+    <ClCompile Include="compat/pthreads/pthread_rwlock_trywrlock.c" />
+    <ClCompile Include="compat/pthreads/pthread_rwlock_unlock.c" />
+    <ClCompile Include="compat/pthreads/pthread_rwlock_wrlock.c" />
+    <ClCompile Include="compat/pthreads/pthread_rwlockattr_destroy.c" />
+    <ClCompile Include="compat/pthreads/pthread_rwlockattr_getpshared.c" />
+    <ClCompile Include="compat/pthreads/pthread_rwlockattr_init.c" />
+    <ClCompile Include="compat/pthreads/pthread_rwlockattr_setpshared.c" />
+    <ClCompile Include="compat/pthreads/pthread_self.c" />
+    <ClCompile Include="compat/pthreads/pthread_setaffinity.c" />
+    <ClCompile Include="compat/pthreads/pthread_setcancelstate.c" />
+    <ClCompile Include="compat/pthreads/pthread_setcanceltype.c" />
+    <ClCompile Include="compat/pthreads/pthread_setconcurrency.c" />
+    <ClCompile Include="compat/pthreads/pthread_setschedparam.c" />
+    <ClCompile Include="compat/pthreads/pthread_setspecific.c" />
+    <ClCompile Include="compat/pthreads/pthread_spin_destroy.c" />
+    <ClCompile Include="compat/pthreads/pthread_spin_init.c" />
+    <ClCompile Include="compat/pthreads/pthread_spin_lock.c" />
+    <ClCompile Include="compat/pthreads/pthread_spin_trylock.c" />
+    <ClCompile Include="compat/pthreads/pthread_spin_unlock.c" />
+    <ClCompile Include="compat/pthreads/pthread_testcancel.c" />
+    <ClCompile Include="compat/pthreads/pthread_timechange_handler_np.c" />
+    <ClCompile Include="compat/pthreads/pthread_timedjoin_np.c" />
+    <ClCompile Include="compat/pthreads/pthread_tryjoin_np.c" />
+    <ClCompile Include="compat/pthreads/pthread_win32_attach_detach_np.c" />
+    <ClCompile Include="compat/pthreads/ptw32_calloc.c" />
+    <ClCompile Include="compat/pthreads/ptw32_callUserDestroyRoutines.c" />
+    <ClCompile Include="compat/pthreads/ptw32_cond_check_need_init.c" />
+    <ClCompile Include="compat/pthreads/ptw32_getprocessors.c" />
+    <ClCompile Include="compat/pthreads/ptw32_is_attr.c" />
+    <ClCompile Include="compat/pthreads/ptw32_MCS_lock.c" />
+    <ClCompile Include="compat/pthreads/ptw32_mutex_check_need_init.c" />
+    <ClCompile Include="compat/pthreads/ptw32_new.c" />
+    <ClCompile Include="compat/pthreads/ptw32_processInitialize.c" />
+    <ClCompile Include="compat/pthreads/ptw32_processTerminate.c" />
+    <ClCompile Include="compat/pthreads/ptw32_relmillisecs.c" />
+    <ClCompile Include="compat/pthreads/ptw32_reuse.c" />
+    <ClCompile Include="compat/pthreads/ptw32_rwlock_cancelwrwait.c" />
+    <ClCompile Include="compat/pthreads/ptw32_rwlock_check_need_init.c" />
+    <ClCompile Include="compat/pthreads/ptw32_semwait.c" />
+    <ClCompile Include="compat/pthreads/ptw32_spinlock_check_need_init.c" />
+    <ClCompile Include="compat/pthreads/ptw32_threadDestroy.c" />
+    <ClCompile Include="compat/pthreads/ptw32_threadStart.c" />
+    <ClCompile Include="compat/pthreads/ptw32_throw.c" />
+    <ClCompile Include="compat/pthreads/ptw32_timespec.c" />
+    <ClCompile Include="compat/pthreads/ptw32_tkAssocCreate.c" />
+    <ClCompile Include="compat/pthreads/ptw32_tkAssocDestroy.c" />
+    <ClCompile Include="compat/pthreads/sched_get_priority_max.c" />
+    <ClCompile Include="compat/pthreads/sched_get_priority_min.c" />
+    <ClCompile Include="compat/pthreads/sched_getscheduler.c" />
+    <ClCompile Include="compat/pthreads/sched_setaffinity.c" />
+    <ClCompile Include="compat/pthreads/sched_setscheduler.c" />
+    <ClCompile Include="compat/pthreads/sched_yield.c" />
+    <ClCompile Include="compat/pthreads/sem_close.c" />
+    <ClCompile Include="compat/pthreads/sem_destroy.c" />
+    <ClCompile Include="compat/pthreads/sem_getvalue.c" />
+    <ClCompile Include="compat/pthreads/sem_init.c" />
+    <ClCompile Include="compat/pthreads/sem_open.c" />
+    <ClCompile Include="compat/pthreads/sem_post.c" />
+    <ClCompile Include="compat/pthreads/sem_post_multiple.c" />
+    <ClCompile Include="compat/pthreads/sem_timedwait.c" />
+    <ClCompile Include="compat/pthreads/sem_trywait.c" />
+    <ClCompile Include="compat/pthreads/sem_unlink.c" />
+    <ClCompile Include="compat/pthreads/sem_wait.c" />
+    <ClCompile Include="compat/pthreads/signal.c" />
+    <ClCompile Include="compat/pthreads/w32_CancelableWait.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="compat/pthreads/config.h" />
+    <ClInclude Include="compat/pthreads/context.h" />
+    <ClInclude Include="compat/pthreads/implement.h" />
+    <ClInclude Include="compat/pthreads/need_errno.h" />
+    <ClInclude Include="compat/pthreads/pthread.h" />
+    <ClInclude Include="compat/pthreads/sched.h" />
+    <ClInclude Include="compat/pthreads/semaphore.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="compat/pthreads/version.rc">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PTW32_RC_MSC;PTW32_ARCHx64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PTW32_RC_MSC;PTW32_ARCHx64;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PTW32_RC_MSC;PTW32_ARCHx86;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PTW32_RC_MSC;PTW32_ARCHx86;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
