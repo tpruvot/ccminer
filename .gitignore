@@ -34,8 +34,7 @@ Thumbs.db
 
 Debug/
 Release/
-x64/Debug/
-x64/Release/
+
 *.suo
 *.user
 *.opensdf
