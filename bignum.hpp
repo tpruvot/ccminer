@@ -9,6 +9,10 @@
 #include "serialize.hpp"
 #include "uint256.h"
 
+#ifndef PROTOCOL_VERSION
+#define PROTOCOL_VERSION 70002
+#endif
+
 #include <stdexcept>
 #include <stdint.h>
 #include <vector>
