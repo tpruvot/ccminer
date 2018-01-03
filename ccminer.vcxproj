@@ -76,7 +76,7 @@
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PreprocessorDefinitions>X86;WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;USE_WRAPNVML;SCRYPT_KECCAK512;SCRYPT_CHACHA;SCRYPT_CHOOSE_COMPILETIME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>X86;_WIN32;WIN32;_DEBUG;HAVE_CONFIG_H;__CLEANUP_SEH;OPENSSL_PIC;DSO_WIN32;OPENSSL_THREADS;OPENSSL_NO_DYNAMIC_ENGINE;OPENSSL_SYS_WIN32;WIN32_LEAN_AND_MEAN;NO_WINDOWS_BRAINDEATH;L_ENDIAN;LIBSSH2_CLEAR_MEMORY;LIBSSH2_DH_GEX_NEW=1;LIBSSH2_OPENSSL;LIBSSH2_WIN32;_CRT_NONSTDC_NO_DEPRECATE;USE_SSLEAY;USE_IPV6;USE_ZLIB;USE_WINDOWS_SSPI;HAVE_SPNEGO;HAVE_ZLIB_H;HAVE_ZLIB;HAVE_LIBZ;BUILDING_LIBCURL;CURL_STATICLIB;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;_CRT_SECURE_NO_WARNINGS;USE_WRAPNVML;SCRYPT_KECCAK512;SCRYPT_CHACHA;SCRYPT_CHOOSE_COMPILETIME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.;compat;compat\curl-for-windows\conf;compat\curl-for-windows\curl\include;compat\jansson;compat\getopt;compat\pthreads;compat\curl-for-windows\openssl\crypto\include;compat\curl-for-windows\openssl\include;compat\curl-for-windows\zlib;%(AdditionalIncludeDirectories);$(CudaToolkitIncludeDir)</AdditionalIncludeDirectories>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -87,7 +87,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>cudart_static.lib;cuda.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;pthread.lib;libcurl.lib;openssl.lib;zlib.lib;ws2_32.lib;Wldap32.lib;nvapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;msvcrt.lib</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\$(Platform)\lib;compat\nvapi\$(Platform);%(AdditionalLibraryDirectories);$(CudaToolkitLibDir)</AdditionalLibraryDirectories>
       <AdditionalOptions>/NODEFAULTLIB:LIBCMT %(AdditionalOptions)</AdditionalOptions>
       <LinkStatus>true</LinkStatus>
@@ -100,7 +101,12 @@
       <Keep>true</Keep>
       <CodeGeneration>compute_50,sm_50</CodeGeneration>
       <Include>$(NVTOOLSEXT_PATH)\include;..\..\..\Common\C99</Include>
+      <KeepDir>$(IntDir)</KeepDir>
     </CudaCompile>
+    <CudaLink>
+      <LinkOut>$(Configuration)\$(Platform)\obj\$(ProjectName)\device-link.obj</LinkOut>
+      <PerformDeviceLink>false</PerformDeviceLink>
+    </CudaLink>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -108,7 +114,7 @@
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PreprocessorDefinitions>X64;WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;USE_WRAPNVML;SCRYPT_KECCAK512;SCRYPT_CHACHA;SCRYPT_CHOOSE_COMPILETIME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>X64;_WIN64;HAVE_CONFIG_H;USE_SSLEAY;USE_IPV6;USE_ZLIB;USE_WINDOWS_SSPI;HAVE_SPNEGO;HAVE_ZLIB_H;HAVE_ZLIB;HAVE_LIBZ;BUILDING_LIBCURL;WIN64;__CLEANUP_SEH;_DEBUG;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_DEPRECATE;WIN32;_CONSOLE;DSO_WIN32;OPENSSL_PIC;OPENSSL_THREADS;OPENSSL_NO_DYNAMIC_ENGINE;OPENSSL_SYS_WIN32;WIN32_LEAN_AND_MEAN;NO_WINDOWS_BRAINDEATH;L_ENDIAN;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;USE_WRAPNVML;SCRYPT_KECCAK512;SCRYPT_CHACHA;SCRYPT_CHOOSE_COMPILETIME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.;compat;compat\curl-for-windows\conf;compat\curl-for-windows\curl\include;compat\jansson;compat\getopt;compat\pthreads;compat\curl-for-windows\openssl\crypto\include;compat\curl-for-windows\openssl\include;compat\curl-for-windows\zlib;%(AdditionalIncludeDirectories);$(CudaToolkitIncludeDir)</AdditionalIncludeDirectories>
       <StructMemberAlignment>8Bytes</StructMemberAlignment>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
@@ -120,7 +126,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>cudart_static.lib;cuda.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;pthread.lib;libcurl.lib;openssl.lib;zlib.lib;ws2_32.lib;Wldap32.lib;nvapi64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\$(Platform)\lib;compat\nvapi\$(Platform);%(AdditionalLibraryDirectories);$(CudaToolkitLibDir)</AdditionalLibraryDirectories>
       <AdditionalOptions>/NODEFAULTLIB:LIBCMTD %(AdditionalOptions)</AdditionalOptions>
       <LinkStatus>true</LinkStatus>
@@ -134,24 +141,26 @@
       <CodeGeneration>compute_52,sm_52</CodeGeneration>
       <Include>$(NVTOOLSEXT_PATH)\include;..\..\..\Common\C99</Include>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <KeepDir>$(IntDir)</KeepDir>
     </CudaCompile>
     <CudaLink>
       <PerformDeviceLink>false</PerformDeviceLink>
+      <LinkOut>$(Configuration)\$(Platform)\obj\$(ProjectName)\device-link.obj</LinkOut>
     </CudaLink>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <Optimization>Full</Optimization>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <CompileAsManaged>false</CompileAsManaged>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>X86;WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;USE_WRAPNVML;SCRYPT_KECCAK512;SCRYPT_CHACHA;SCRYPT_CHOOSE_COMPILETIME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>X86;_WIN32;WIN32;NDEBUG;HAVE_CONFIG_H;__CLEANUP_SEH;OPENSSL_PIC;DSO_WIN32;OPENSSL_THREADS;OPENSSL_NO_DYNAMIC_ENGINE;OPENSSL_SYS_WIN32;WIN32_LEAN_AND_MEAN;NO_WINDOWS_BRAINDEATH;L_ENDIAN;LIBSSH2_CLEAR_MEMORY;LIBSSH2_DH_GEX_NEW=1;LIBSSH2_OPENSSL;LIBSSH2_WIN32;_CRT_NONSTDC_NO_DEPRECATE;USE_SSLEAY;USE_IPV6;USE_ZLIB;USE_WINDOWS_SSPI;HAVE_SPNEGO;HAVE_ZLIB_H;HAVE_ZLIB;HAVE_LIBZ;BUILDING_LIBCURL;CURL_STATICLIB;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;_CRT_SECURE_NO_WARNINGS;USE_WRAPNVML;SCRYPT_KECCAK512;SCRYPT_CHACHA;SCRYPT_CHOOSE_COMPILETIME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.;compat;compat\curl-for-windows\conf;compat\curl-for-windows\curl\include;compat\jansson;compat\getopt;compat\pthreads;compat\curl-for-windows\openssl\crypto\include;compat\curl-for-windows\openssl\include;compat\curl-for-windows\zlib;%(AdditionalIncludeDirectories);$(CudaToolkitIncludeDir)</AdditionalIncludeDirectories>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OpenMPSupport>true</OpenMPSupport>
@@ -163,7 +172,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>cudart_static.lib;cuda.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;pthread.lib;libcurl.lib;openssl.lib;zlib.lib;ws2_32.lib;Wldap32.lib;nvapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\$(Platform)\lib;compat\nvapi\$(Platform);%(AdditionalLibraryDirectories);$(CudaToolkitLibDir)</AdditionalLibraryDirectories>
       <AdditionalOptions>/NODEFAULTLIB:LIBCMT %(AdditionalOptions)</AdditionalOptions>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
@@ -178,28 +188,33 @@
       <CodeGeneration>compute_50,sm_50;compute_52,sm_52</CodeGeneration>
       <AdditionalOptions>--ptxas-options="-O2" --Wno-deprecated-gpu-targets %(AdditionalOptions)</AdditionalOptions>
       <Optimization>O3</Optimization>
+      <KeepDir>$(IntDir)</KeepDir>
+      <Include>$(NVTOOLSEXT_PATH)\include</Include>
     </CudaCompile>
     <CudaLink>
       <GPUDebugInfo>false</GPUDebugInfo>
       <Optimization>O3</Optimization>
+      <LinkOut>$(Configuration)\$(Platform)\obj\$(ProjectName)\device-link.obj</LinkOut>
+      <PerformDeviceLink>false</PerformDeviceLink>
     </CudaLink>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <Optimization>Full</Optimization>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <OpenMPSupport>true</OpenMPSupport>
       <CompileAsManaged>false</CompileAsManaged>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>X64;WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;USE_WRAPNVML;SCRYPT_KECCAK512;SCRYPT_CHACHA;SCRYPT_CHOOSE_COMPILETIME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>X64;_WIN64;HAVE_CONFIG_H;USE_SSLEAY;USE_IPV6;USE_ZLIB;USE_WINDOWS_SSPI;HAVE_SPNEGO;HAVE_ZLIB_H;HAVE_ZLIB;HAVE_LIBZ;BUILDING_LIBCURL;WIN64;__CLEANUP_SEH;NDEBUG;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_DEPRECATE;WIN32;_CONSOLE;DSO_WIN32;OPENSSL_PIC;OPENSSL_THREADS;OPENSSL_NO_DYNAMIC_ENGINE;OPENSSL_SYS_WIN32;WIN32_LEAN_AND_MEAN;NO_WINDOWS_BRAINDEATH;L_ENDIAN;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;USE_WRAPNVML;SCRYPT_KECCAK512;SCRYPT_CHACHA;SCRYPT_CHOOSE_COMPILETIME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.;compat;compat\curl-for-windows\conf;compat\curl-for-windows\curl\include;compat\jansson;compat\getopt;compat\pthreads;compat\curl-for-windows\openssl\include;compat\curl-for-windows\openssl\crypto\include;compat\curl-for-windows\zlib;%(AdditionalIncludeDirectories);$(CudaToolkitIncludeDir)</AdditionalIncludeDirectories>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>None</DebugInformationFormat>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -207,9 +222,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;pthread.lib;libcurl.lib;openssl.lib;zlib.lib;ws2_32.lib;Wldap32.lib;cudart_static.lib;cuda.lib;nvapi64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\$(Platform)\lib;compat\nvapi\$(Platform);%(AdditionalLibraryDirectories);$(CudaToolkitLibDir)</AdditionalLibraryDirectories>
-      <AdditionalOptions>/NODEFAULTLIB:LIBCMT %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <LinkStatus>false</LinkStatus>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
@@ -223,10 +239,13 @@
       <Optimization>O3</Optimization>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <AdditionalOptions>--Wno-deprecated-gpu-targets %(AdditionalOptions)</AdditionalOptions>
+      <KeepDir>$(IntDir)</KeepDir>
     </CudaCompile>
     <CudaLink>
       <Optimization>O3</Optimization>
       <PerformDeviceLink>false</PerformDeviceLink>
+      <LinkOut>$(Configuration)\$(Platform)\obj\$(ProjectName)\device-link.obj</LinkOut>
+      <GPUDebugInfo>false</GPUDebugInfo>
     </CudaLink>
   </ItemDefinitionGroup>
   <ItemGroup>
