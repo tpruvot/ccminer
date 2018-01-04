@@ -6,31 +6,37 @@ Check the [README.txt](README.txt) for the additions
 
 BTC donation address: 1AJdfCpLWPNoAMDfHF1wD5y8VgKSSTHxPo (tpruvot)
 
+BTC donation address: 1a2gWsePbgC7DNCN6yNFWqHAPotvpyXLN  (gelotus)
+
+
 A part of the recent algos were originally written by [djm34](https://github.com/djm34) and [alexis78](https://github.com/alexis78)
 
-This variant was tested and built on Linux (ubuntu server 14.04, 16.04, Fedora 22 to 25)
-It is also built for Windows 7 to 10 with VStudio 2013, to stay compatible with Windows 7 and Vista.
+It is built for Windows 7 to 10 with VStudio 2015.
 
-Note that the x86 releases are generally faster than x64 ones on Windows, but that tend to change with the recent drivers.
-
-The recommended CUDA Toolkit version was the [6.5.19](http://developer.download.nvidia.com/compute/cuda/6_5/rel/installers/cuda_6.5.19_windows_general_64.exe), but some light algos could be faster with the version 7.5 and 8.0 (like lbry, decred and skein).
+The recommended CUDA Toolkit version was the [9.1](https://developer.nvidia.com/compute/cuda/9.1/Prod/local_installers/cuda_9.1.85_win10).
 
 About source code dependencies
 ------------------------------
 
 This project requires some libraries to be built :
 
-- OpenSSL (prebuilt for win)
-- Curl (prebuilt for win)
-- pthreads (prebuilt for win)
+- OpenSSL
+- Curl
+- pthreads
 
-The tree now contains recent prebuilt openssl and curl .lib for both x86 and x64 platforms (windows).
+Those are included in the build project.
 
-To rebuild them, you need to clone this repository and its submodules :
-    git clone https://github.com/peters/curl-for-windows.git compat/curl-for-windows
+This branch was only tested in windows, it was compiled in Visual Studio 2017 with 2015 SDK, CUDA 9.1.
+The libraries are all at the last stable version.
+All was compiled with multithread support and dll crt linking.
 
+Some tests show a little improvement:
 
-Compile on Linux
-----------------
+Tested for 5 mins on a stock clocked Palit GeForce 750Ti against X11 algo:
 
-Please see [INSTALL](https://github.com/tpruvot/ccminer/blob/linux/INSTALL) file or [project Wiki](https://github.com/tpruvot/ccminer/wiki/Compatibility)
+VC2015 CUDA 9.1 OpenSSL 1.1.0 -> 2862.65 kH/s
+VC2013 binary release         -> 2847.10 kH/s
+
+# Building
+
+Open ccminer.sln in VS2015 and compile, the release archive will be in ./dist folder.

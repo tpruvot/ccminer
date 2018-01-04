@@ -12,6 +12,9 @@ tpruvot@github:
 
 DJM34:
   BTC donation address: 1NENYmxwZGHsKFmyjTc5WferTn5VTFb7Ze
+  
+gelotus:
+  BTC  : 1a2gWsePbgC7DNCN6yNFWqHAPotvpyXLN
 
 cbuchner v1.2:
   LTC donation address: LKS1WDKGED647msBQfLBHV3Ls8sveGncnm
@@ -277,7 +280,7 @@ I plan to add a json format later, if requests are formatted in json too..
 >>> Additional Notes <<<
 
 This code should be running on nVidia GPUs ranging from compute capability
-3.0 up to compute capability 5.2. Support for Compute 2.0 has been dropped
+5.0 up to compute capability 5.2. Support for Compute 3.0 has been dropped
 so we can more efficiently implement new algorithms using the latest hardware
 features.
 
@@ -587,6 +590,8 @@ djm34, tsiv, sp and klausT for cuda algos implementation and optimisation
 
 Tanguy Pruvot : 750Ti tuning, blake, colors, zr5, skein, general code cleanup
                 API monitoring, linux Config/Makefile and vstudio libs...
+				
+gelotus         Visual Studio build system, VS2015 & CUDA 9.1 compatibility				
 
 and also many thanks to anyone else who contributed to the original
 cpuminer application (Jeff Garzik, pooler), it's original HVC-fork
@@ -600,3 +605,5 @@ With kind regards,
    Christian Buchner ( Christian.Buchner@gmail.com )
    Christian H. ( Chris84 )
    Tanguy Pruvot ( tpruvot@github )
+   gelotus
+   

@@ -65,3 +65,5 @@ Release/
 *.cudafe1.c
 *.cudafe2.c
 
+
+dist/

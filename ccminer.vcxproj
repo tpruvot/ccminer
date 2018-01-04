@@ -57,18 +57,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(Configuration)\$(Platform)\obj\$(ProjectName)\</IntDir>
+    <TargetName>$(ProjectName)-x86</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(Configuration)\$(Platform)\obj\$(ProjectName)\</IntDir>
+    <TargetName>$(ProjectName)-x64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(Configuration)\$(Platform)\obj\$(ProjectName)\</IntDir>
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <TargetName>$(ProjectName)-x64D</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(Configuration)\$(Platform)\obj\$(ProjectName)\</IntDir>
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <TargetName>$(ProjectName)-x86D</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -198,6 +202,10 @@
       <LinkOut>$(Configuration)\$(Platform)\obj\$(ProjectName)\device-link.obj</LinkOut>
       <PerformDeviceLink>false</PerformDeviceLink>
     </CudaLink>
+    <PostBuildEvent>
+      <Command>7z\7za.exe a dist\ccminer-x86.7z api\ .\$(Configuration)\$(Platform)\$(AssemblyName)-x86.exe ccminer.conf README.txt RUN-CREA.cmd "$(VCInstallDir)redist\x86\Microsoft.VC140.CRT\msvcp140.dll"
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -249,6 +257,9 @@
       <LinkOut>$(Configuration)\$(Platform)\obj\$(ProjectName)\device-link.obj</LinkOut>
       <GPUDebugInfo>false</GPUDebugInfo>
     </CudaLink>
+    <PostBuildEvent>
+      <Command>7z\7za.exe a dist\ccminer-$(Platform).7z api\ .\$(Configuration)\$(Platform)\$(AssemblyName)-$(Platform).exe ccminer.conf README.txt RUN-CREA.cmd "$(VCInstallDir)redist\x64\Microsoft.VC140.CRT\msvcp140.dll"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="compat\getopt\getopt_long.c" />
