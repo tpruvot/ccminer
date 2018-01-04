@@ -179,7 +179,7 @@ static void shift256R4(uint32_t* ret, const uint8 &vec4, const uint32_t shift2)
 	idx = BLAKE2S_SIGMA[idx0][idx1]; a += key[idx]; \
 	a += b; d = rotateL(d^a, 16); \
 	c += d; b = rotateR(b^c, 12); \
-	idx = BLAKE2S_SIGMA[idx0][idx1+1]; a += key[idx]; \
+	idx = BLAKE2S_SIGMA[idx0][idx1 + 1]; a += key[idx]; \
 	a += b; d = rotateR(d^a, 8); \
 	c += d; b = rotateR(b^c, 7); \
 }
@@ -392,7 +392,7 @@ void Blake2S(uint32_t *out, const uint32_t* const __restrict__  inout, const  ui
 	idx = BLAKE2S_SIGMA[idx0][idx1]; a += key[idx]; \
 	a += b; d = __byte_perm(d^a, 0, 0x1032); \
 	c += d; b = rotateR(b^c, 12); \
-	idx = BLAKE2S_SIGMA[idx0][idx1+1]; a += key[idx]; \
+	idx = BLAKE2S_SIGMA[idx0][idx1 + 1]; a += key[idx]; \
 	a += b; d = __byte_perm(d^a, 0, 0x0321); \
 	c += d; b = rotateR(b^c, 7); \
 }
@@ -1260,7 +1260,7 @@ uint32_t fastkdf32_v3(uint32_t thread, const uint32_t nonce, uint32_t* const sal
 	idx = BLAKE2S_SIGMA_host[idx0][idx1]; a += key[idx]; \
 	a += b; d = ROTR32(d^a,16); \
 	c += d; b = ROTR32(b^c, 12); \
-	idx = BLAKE2S_SIGMA_host[idx0][idx1+1]; a += key[idx]; \
+	idx = BLAKE2S_SIGMA_host[idx0][idx1 + 1]; a += key[idx]; \
 	a += b; d = ROTR32(d^a,8); \
 	c += d; b = ROTR32(b^c, 7); \
 }

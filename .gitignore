@@ -34,8 +34,7 @@ Thumbs.db
 
 Debug/
 Release/
-x64/Debug/
-x64/Release/
+
 *.suo
 *.user
 *.opensdf
@@ -52,8 +51,6 @@ x64/Release/
 .cproject
 .buildpath
 
-compat/curl-for-windows/
-
 *.ptx
 *.i
 *.ii
@@ -68,3 +65,5 @@ compat/curl-for-windows/
 *.cudafe1.c
 *.cudafe2.c
 
+
+dist/

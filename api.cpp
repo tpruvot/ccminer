@@ -12,7 +12,7 @@
 
 #ifdef WIN32
 # define  _WINSOCK_DEPRECATED_NO_WARNINGS
-# include <winsock2.h>
+# include <WS2tcpip.h>
 #endif
 
 #include <stdio.h>
@@ -597,7 +597,7 @@ static size_t base64_encode(const uchar *indata, size_t insize, char *outptr, si
 	return len;
 }
 
-#include "compat/curl-for-windows/openssl/openssl/crypto/sha/sha.h"
+#include "openssl/sha.h"
 
 /* websocket handshake (tested in Chrome) */
 static int websocket_handshake(SOCKETTYPE c, char *result, char *clientkey)

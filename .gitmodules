@@ -1,0 +1,6 @@
+[submodule "compat/curl-for-windows"]
+	path = compat/curl-for-windows
+	url = https://github.com/gelotus/curl-for-windows
+[submodule "compat/pthreads"]
+	path = compat/pthreads
+	url = https://github.com/GerHobbelt/pthread-win32
