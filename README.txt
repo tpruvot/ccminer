@@ -80,7 +80,7 @@ its command line interface and options.
                           blake2s     use to mine Nevacoin (Blake2-S 256)
                           bmw         use to mine Midnight
                           cryptolight use to mine AEON cryptonight (MEM/2)
-                          cryptonight use to mine XMR cryptonight
+                          cryptonight use to mine XMR cryptonight, Bytecoin, Dash, DigitalNote, etc
                           c11/flax    use to mine Chaincoin and Flax
                           decred      use to mine Decred 180 bytes Blake256-14
                           deep        use to mine Deepcoin
@@ -99,14 +99,14 @@ its command line interface and options.
                           lyra2v2     use to mine Vertcoin
                           lyra2z      use to mine Zerocoin (XZC)
                           myr-gr      use to mine Myriad-Groest
-                          neoscrypt   use to mine FeatherCoin
+                          neoscrypt   use to mine FeatherCoin, Trezarcoin, Orbitcoin, etc
                           nist5       use to mine TalkCoin
                           penta       use to mine Joincoin / Pentablake
                           phi         use to mine LUXCoin
                           polytimos   use to mine Polytimos
                           quark       use to mine Quarkcoin
                           qubit       use to mine Qubit
-                          scrypt      use to mine Scrypt coins
+                          scrypt      use to mine Scrypt coins (Litecoin, Dogecoin, etc)
                           scrypt:N    use to mine Scrypt-N (:10 for 2048 iterations)
                           scrypt-jane use to mine Chacha coins like Cache and Ultracoin
                           s3          use to mine 1coin (ONE)
@@ -122,7 +122,6 @@ its command line interface and options.
                           x11         use to mine DarkCoin
                           x14         use to mine X14Coin
                           x15         use to mine Halcyon
-                          x17         use to mine X17
                           x17         use to mine X17
                           vanilla     use to mine Vanilla (Blake256)
                           veltor      use to mine VeltorCoin
