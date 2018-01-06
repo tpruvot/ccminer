@@ -79,6 +79,13 @@ u32 umin(const u32, const u32);
 u32 umax(const u32, const u32);
 #endif
 
+#if CUDA_VERSION >= 9000
+#undef __shfl
+#undef __any
+#define __shfl(a, b) __shfl_sync(0xFFFFFFFF, a, b)
+#define __any(a) __any_sync(0xFFFFFFFF, a)
+#endif
+
 typedef u32 proof[PROOFSIZE];
 
 struct __align__(32) slot {

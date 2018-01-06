@@ -112,8 +112,10 @@ endif
 ccminer_LDADD += -lcuda
 
 nvcc_ARCH  = -gencode=arch=compute_50,code=\"sm_50,compute_50\"
-
 nvcc_ARCH += -gencode=arch=compute_52,code=\"sm_52,compute_52\"
+nvcc_ARCH += -gencode=arch=compute_60,code=\"sm_60,compute_60\"
+nvcc_ARCH += -gencode=arch=compute_61,code=\"sm_61,compute_61\"
+nvcc_ARCH += -gencode=arch=compute_62,code=\"sm_62,compute_62\"
 #nvcc_ARCH += -gencode=arch=compute_35,code=\"sm_35,compute_35\"
 #nvcc_ARCH += -gencode=arch=compute_30,code=\"sm_30,compute_30\"
 

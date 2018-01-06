@@ -20,6 +20,11 @@
 #define __ldg4(x) (*(x))
 #endif
 
+#if CUDA_VERSION >= 9000
+#undef __shfl
+#define __shfl(a, b) __shfl_sync(0xFFFFFFFF, a, b)
+#endif
+
 typedef struct __align__(32) uint8 {
 	unsigned int s0, s1, s2, s3, s4, s5, s6, s7;
 } uint8;
