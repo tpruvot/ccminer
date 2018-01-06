@@ -252,7 +252,6 @@ __device__ __forceinline__ void __transposed_read_BC(const uint4 *S, uint4 (&B)[
 
 	// rotate rows
 	B[0] = T2[0];
-#if 1 //CUDA_VERSION < 9000
 	B[1] = __shfl(T2[1], lane8 + 1, 8);
 	B[2] = __shfl(T2[2], lane8 + 2, 8);
 	B[3] = __shfl(T2[3], lane8 + 3, 8);
@@ -260,15 +259,6 @@ __device__ __forceinline__ void __transposed_read_BC(const uint4 *S, uint4 (&B)[
 	C[1] = __shfl(T2[5], lane8 + 5, 8);
 	C[2] = __shfl(T2[6], lane8 + 6, 8);
 	C[3] = __shfl(T2[7], lane8 + 7, 8);
-#else
-	B[1] = __shfl_sync(0xFFFFFFFF, T2[1], lane8 + 1, 8);
-	B[2] = __shfl_sync(0xFFFFFFFF, T2[2], lane8 + 2, 8);
-	B[3] = __shfl_sync(0xFFFFFFFF, T2[3], lane8 + 3, 8);
-	C[0] = __shfl_sync(0xFFFFFFFF, T2[4], lane8 + 4, 8);
-	C[1] = __shfl_sync(0xFFFFFFFF, T2[5], lane8 + 5, 8);
-	C[2] = __shfl_sync(0xFFFFFFFF, T2[6], lane8 + 6, 8);
-	C[3] = __shfl_sync(0xFFFFFFFF, T2[7], lane8 + 7, 8);
-#endif
 }
 
 __device__ __forceinline__ void __transposed_xor_BC(const uint4 *S, uint4 (&B)[4], uint4 (&C)[4], int spacing, int row)
