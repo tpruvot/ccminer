@@ -196,6 +196,11 @@ do { \
 #endif
 #endif
 
+#if CUDA_VERSION >= 9000
+#undef __shfl
+#define __shfl(a, b, c) __shfl_sync(0xFFFFFFFF, a, b, c)
+#endif 
+
 /**
  * FFT_16 using w=2 as 16th root of unity
  * Unrolled decimation in frequency (DIF) radix-2 NTT.

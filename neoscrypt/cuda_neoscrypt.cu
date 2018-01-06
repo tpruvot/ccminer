@@ -19,6 +19,11 @@ typedef uint48 uint4x2;
 #define atomicExch(p,x) x
 #endif
 
+#if CUDA_VERSION >= 9000
+#undef __shfl
+#define __shfl(a, b, c) __shfl_sync(0xFFFFFFFF, a, b, c)
+#endif
+
 static uint32_t* d_NNonce[MAX_GPUS];
 
 __device__ uint2x4* W;

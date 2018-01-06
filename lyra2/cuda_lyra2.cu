@@ -25,6 +25,12 @@
 __device__ uint32_t __shfl(uint32_t a, uint32_t b, uint32_t c);
 #endif
 
+#if CUDA_VERSION >= 9000
+#undef __shfl
+#define __shfl(a, b, c) __shfl_sync(0xFFFFFFFF, a, b, c)
+#endif
+
+
 #define Nrow 8
 #define Ncol 8
 #define memshift 3

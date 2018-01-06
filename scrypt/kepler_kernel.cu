@@ -10,6 +10,7 @@
 #include <map>
 
 #include <cuda_runtime.h>
+#include "cuda_helper.h"
 #include "miner.h"
 
 #include "salsa_kernel.h"
@@ -59,10 +60,17 @@ static __host__ __device__ uint4& operator += (uint4& left, const uint4& right) 
 
 static __device__ uint4 __shfl(const uint4 bx, int target_thread) {
 	return make_uint4(
-		__shfl((int)bx.x, target_thread),
+#if CUDA_VERSION < 9000
+        __shfl((int)bx.x, target_thread),
 		__shfl((int)bx.y, target_thread),
 		__shfl((int)bx.z, target_thread),
 		__shfl((int)bx.w, target_thread)
+#else
+        __shfl_sync(0xFFFFFFFF, (int)bx.x, target_thread),
+        __shfl_sync(0xFFFFFFFF, (int)bx.y, target_thread),
+        __shfl_sync(0xFFFFFFFF, (int)bx.z, target_thread),
+        __shfl_sync(0xFFFFFFFF, (int)bx.w, target_thread)
+#endif
 	);
 }
 
@@ -97,8 +105,13 @@ void write_keys_direct(const uint4 &b, const uint4 &bx, uint32_t start)
 
 	if (SCHEME == ANDERSEN) {
 		int target_thread = (threadIdx.x + 4)%32;
-		uint4 t=b, t2=__shfl(bx, target_thread);
+#if CUDA_VERSION < 9000
+        uint4 t=b, t2=__shfl(bx, target_thread);
 		int t2_start = __shfl((int)start, target_thread) + 4;
+#else
+        uint4 t=b, t2=__shfl( bx, target_thread);
+        int t2_start = __shfl_sync(0xFFFFFFFF, (int)start, target_thread) + 4;
+#endif
 		bool c = (threadIdx.x & 0x4);
 		*((uint4 *)(&scratch[c ? t2_start : start])) = (c ? t2 : t);
 		*((uint4 *)(&scratch[c ? start : t2_start])) = (c ? t : t2);
@@ -115,7 +128,11 @@ void read_keys_direct(uint4 &b, uint4 &bx, uint32_t start)
 
 	if (TEX_DIM == 0) scratch = c_V[(blockIdx.x*blockDim.x + threadIdx.x)/32];
 	if (SCHEME == ANDERSEN) {
+#if CUDA_VERSION < 9000
 		int t2_start = __shfl((int)start, (threadIdx.x + 4)%32) + 4;
+#else
+        int t2_start = __shfl_sync(0xFFFFFFFF, (int)start, (threadIdx.x + 4)%32) + 4;
+#endif
 		if (TEX_DIM > 0) { start /= 4; t2_start /= 4; }
 		bool c = (threadIdx.x & 0x4);
 		if (TEX_DIM == 0) {
@@ -129,7 +146,11 @@ void read_keys_direct(uint4 &b, uint4 &bx, uint32_t start)
 				bx = tex2D(texRef2D_4_V, 0.5f + ((c ? start : t2_start)%TEXWIDTH), 0.5f + ((c ? start : t2_start)/TEXWIDTH));
 		}
 		uint4 tmp = b; b = (c ? bx : b); bx = (c ? tmp : bx);
+#if CUDA_VERSION < 9000
 		bx = __shfl(bx, (threadIdx.x + 28)%32);
+#else
+        bx = __shfl(bx, (threadIdx.x + 28)%32);
+#endif
 	} else {
 				 if (TEX_DIM == 0) b = *((uint4 *)(&scratch[start]));
 		else if (TEX_DIM == 1) b = tex1Dfetch(texRef1D_4_V, start/4);
@@ -149,14 +170,26 @@ void primary_order_shuffle(uint4 &b, uint4 &bx)
 	int x2 = (threadIdx.x & 0x1c) + (((threadIdx.x & 0x03)+2)&0x3);
 	int x3 = (threadIdx.x & 0x1c) + (((threadIdx.x & 0x03)+3)&0x3);
 
+#if CUDA_VERSION < 9000
 	b.w = __shfl((int)b.w, x1);
 	b.z = __shfl((int)b.z, x2);
 	b.y = __shfl((int)b.y, x3);
+#else
+    b.w = __shfl_sync(0xFFFFFFFF, (int)b.w, x1);
+    b.z = __shfl_sync(0xFFFFFFFF, (int)b.z, x2);
+    b.y = __shfl_sync(0xFFFFFFFF, (int)b.y, x3);
+#endif
 	uint32_t tmp = b.y; b.y = b.w; b.w = tmp;
 
+#if CUDA_VERSION < 9000
 	bx.w = __shfl((int)bx.w, x1);
 	bx.z = __shfl((int)bx.z, x2);
 	bx.y = __shfl((int)bx.y, x3);
+#else
+    bx.w = __shfl_sync(0xFFFFFFFF, (int)bx.w, x1);
+    bx.z = __shfl_sync(0xFFFFFFFF, (int)bx.z, x2);
+    bx.y = __shfl_sync(0xFFFFFFFF, (int)bx.y, x3);
+#endif
 	tmp = bx.y; bx.y = bx.w; bx.w = tmp;
 }
 
@@ -318,10 +351,15 @@ void salsa_xor_core(uint4 &b, uint4 &bx, const int x1, const int x2, const int x
 		/* Unclear if this optimization is needed: These are ordered based
 		 * upon the dependencies needed in the later xors. Compiler should be
 		 * able to figure this out, but might as well give it a hand. */
-		x.y = __shfl((int)x.y, x3);
+#if CUDA_VERSION < 9000
+        x.y = __shfl((int)x.y, x3);
 		x.w = __shfl((int)x.w, x1);
 		x.z = __shfl((int)x.z, x2);
-
+#else
+        x.y = __shfl_sync(0xFFFFFFFF, (int)x.y, x3);
+        x.w = __shfl_sync(0xFFFFFFFF, (int)x.w, x1);
+        x.z = __shfl_sync(0xFFFFFFFF, (int)x.z, x2);
+#endif
 		/* The next XOR_ROTATE_ADDS could be written to be a copy-paste of the first,
 		 * but the register targets are rewritten here to swap x[1] and x[3] so that
 		 * they can be directly shuffled to and from our peer threads without
@@ -333,9 +371,15 @@ void salsa_xor_core(uint4 &b, uint4 &bx, const int x1, const int x2, const int x
 		XOR_ROTATE_ADD(x.y, x.z, x.w, 13);
 		XOR_ROTATE_ADD(x.x, x.y, x.z, 18);
 
+#if CUDA_VERSION < 9000
 		x.w = __shfl((int)x.w, x3);
 		x.y = __shfl((int)x.y, x1);
 		x.z = __shfl((int)x.z, x2);
+#else
+        x.w = __shfl_sync(0xFFFFFFFF, (int)x.w, x3);
+        x.y = __shfl_sync(0xFFFFFFFF, (int)x.y, x1);
+        x.z = __shfl_sync(0xFFFFFFFF, (int)x.z, x2);
+#endif
 	}
 
 	b += x;
@@ -352,18 +396,30 @@ void salsa_xor_core(uint4 &b, uint4 &bx, const int x1, const int x2, const int x
 		XOR_ROTATE_ADD(x.w, x.z, x.y, 13);
 		XOR_ROTATE_ADD(x.x, x.w, x.z, 18);
 
+#if CUDA_VERSION < 9000
 		x.y = __shfl((int)x.y, x3);
 		x.w = __shfl((int)x.w, x1);
 		x.z = __shfl((int)x.z, x2);
+#else
+        x.y = __shfl_sync(0xFFFFFFFF, (int)x.y, x3);
+        x.w = __shfl_sync(0xFFFFFFFF, (int)x.w, x1);
+        x.z = __shfl_sync(0xFFFFFFFF, (int)x.z, x2);
+#endif
 
 		XOR_ROTATE_ADD(x.w, x.x, x.y, 7);
 		XOR_ROTATE_ADD(x.z, x.w, x.x, 9);
 		XOR_ROTATE_ADD(x.y, x.z, x.w, 13);
 		XOR_ROTATE_ADD(x.x, x.y, x.z, 18);
 
+#if CUDA_VERSION < 9000
 		x.w = __shfl((int)x.w, x3);
 		x.y = __shfl((int)x.y, x1);
 		x.z = __shfl((int)x.z, x2);
+#else
+        x.w = __shfl_sync(0xFFFFFFFF, (int)x.w, x3);
+        x.y = __shfl_sync(0xFFFFFFFF, (int)x.y, x1);
+        x.z = __shfl_sync(0xFFFFFFFF, (int)x.z, x2);
+#endif
 	}
 
 	// At the end of these iterations, the data is in primary order again.
@@ -407,9 +463,15 @@ void chacha_xor_core(uint4 &b, uint4 &bx, const int x1, const int x2, const int 
 		CHACHA_PRIMITIVE(x.x ,x.w, x.y,  8)
 		CHACHA_PRIMITIVE(x.z ,x.y, x.w,  7)
 
+#if CUDA_VERSION < 9000
 		x.y = __shfl((int)x.y, x1);
 		x.z = __shfl((int)x.z, x2);
 		x.w = __shfl((int)x.w, x3);
+#else
+        x.y = __shfl_sync(0xFFFFFFFF, (int)x.y, x1);
+        x.z = __shfl_sync(0xFFFFFFFF, (int)x.z, x2);
+        x.w = __shfl_sync(0xFFFFFFFF, (int)x.w, x3);
+#endif
 
 		// Diagonal Mixing phase of chacha
 		CHACHA_PRIMITIVE(x.x ,x.w, x.y, 16)
@@ -417,9 +479,15 @@ void chacha_xor_core(uint4 &b, uint4 &bx, const int x1, const int x2, const int 
 		CHACHA_PRIMITIVE(x.x ,x.w, x.y,  8)
 		CHACHA_PRIMITIVE(x.z ,x.y, x.w,  7)
 
+#if CUDA_VERSION < 9000
 		x.y = __shfl((int)x.y, x3);
 		x.z = __shfl((int)x.z, x2);
 		x.w = __shfl((int)x.w, x1);
+#else
+        x.y = __shfl_sync(0xFFFFFFFF, (int)x.y, x3);
+        x.z = __shfl_sync(0xFFFFFFFF, (int)x.z, x2);
+        x.w = __shfl_sync(0xFFFFFFFF, (int)x.w, x1);
+#endif
 	}
 
 	b += x;
@@ -436,19 +504,30 @@ void chacha_xor_core(uint4 &b, uint4 &bx, const int x1, const int x2, const int 
 		CHACHA_PRIMITIVE(x.x ,x.w, x.y,  8)
 		CHACHA_PRIMITIVE(x.z ,x.y, x.w,  7)
 
+#if CUDA_VERSION < 9000
 		x.y = __shfl((int)x.y, x1);
 		x.z = __shfl((int)x.z, x2);
 		x.w = __shfl((int)x.w, x3);
-
+#else
+        x.y = __shfl_sync(0xFFFFFFFF, (int)x.y, x1);
+        x.z = __shfl_sync(0xFFFFFFFF, (int)x.z, x2);
+        x.w = __shfl_sync(0xFFFFFFFF, (int)x.w, x3);
+#endif
 		// Diagonal Mixing phase of chacha
 		CHACHA_PRIMITIVE(x.x ,x.w, x.y, 16)
 		CHACHA_PRIMITIVE(x.z ,x.y, x.w, 12)
 		CHACHA_PRIMITIVE(x.x ,x.w, x.y,  8)
 		CHACHA_PRIMITIVE(x.z ,x.y, x.w,  7)
 
+#if CUDA_VERSION < 9000
 		x.y = __shfl((int)x.y, x3);
 		x.z = __shfl((int)x.z, x2);
 		x.w = __shfl((int)x.w, x1);
+#else
+        x.y = __shfl_sync(0xFFFFFFFF, (int)x.y, x3);
+        x.z = __shfl_sync(0xFFFFFFFF, (int)x.z, x2);
+        x.w = __shfl_sync(0xFFFFFFFF, (int)x.w, x1);
+#endif
 	}
 
 #undef CHACHA_PRIMITIVE
@@ -572,7 +651,11 @@ void kepler_scrypt_core_kernelB(uint32_t *d_odata, int begin, int end)
 	} else load_key<ALGO>(d_odata, b, bx);
 
 	for (int i = begin; i < end; i++) {
-		int j = (__shfl((int)bx.x, (threadIdx.x & 0x1c)) & (c_N_1));
+#if CUDA_VERSION < 9000
+        int j = (__shfl((int)bx.x, (threadIdx.x & 0x1c)) & (c_N_1));
+#else
+        int j = (__shfl_sync(0xFFFFFFFF, (int)bx.x, (threadIdx.x & 0x1c)) & (c_N_1));
+#endif
 		uint4 t, tx; read_keys_direct<SCHEME, TEX_DIM>(t, tx, start+32*j);
 		b ^= t; bx ^= tx;
 		block_mixer<ALGO>(b, bx, x1, x2, x3);
@@ -604,7 +687,11 @@ void kepler_scrypt_core_kernelB_LG(uint32_t *d_odata, int begin, int end, unsign
 	{
 		// better divergent thread handling submitted by nVidia engineers, but
 		// supposedly this does not run with the ANDERSEN memory access scheme
-		int j = (__shfl((int)bx.x, (threadIdx.x & 0x1c)) & (c_N_1));
+#if CUDA_VERSION < 9000
+        int j = (__shfl((int)bx.x, (threadIdx.x & 0x1c)) & (c_N_1));
+#else
+        int j = (__shfl_sync(0xFFFFFFFF, (int)bx.x, (threadIdx.x & 0x1c)) & (c_N_1));
+#endif
 		int pos = j/LOOKUP_GAP;
 		int loop = -1;
 		uint4 t, tx;
@@ -612,7 +699,11 @@ void kepler_scrypt_core_kernelB_LG(uint32_t *d_odata, int begin, int end, unsign
 		int i = begin;
 		while(i < end) {
 			if (loop==-1) {
+#if CUDA_VERSION < 9000
 				j = (__shfl((int)bx.x, (threadIdx.x & 0x1c)) & (c_N_1));
+#else
+                j = (__shfl_sync(0xFFFFFFFF, (int)bx.x, (threadIdx.x & 0x1c)) & (c_N_1));
+#endif
 				pos = j/LOOKUP_GAP;
 				loop = j-pos*LOOKUP_GAP;
 				read_keys_direct<SCHEME,TEX_DIM>(t, tx, start+32*pos);
@@ -634,7 +725,11 @@ void kepler_scrypt_core_kernelB_LG(uint32_t *d_odata, int begin, int end, unsign
 		// this is my original implementation, now used with the ANDERSEN
 		// memory access scheme only.
 		for (int i = begin; i < end; i++) {
+#if CUDA_VERSION < 9000
 			int j = (__shfl((int)bx.x, (threadIdx.x & 0x1c)) & (c_N_1));
+#else
+            int j = (__shfl_sync(0xFFFFFFFF, (int)bx.x, (threadIdx.x & 0x1c)) & (c_N_1));
+#endif
 			int pos = j/LOOKUP_GAP, loop = j-pos*LOOKUP_GAP;
 			uint4 t, tx; read_keys_direct<SCHEME,TEX_DIM>(t, tx, start+32*pos);
 			while(loop--) block_mixer<ALGO>(t, tx, x1, x2, x3);

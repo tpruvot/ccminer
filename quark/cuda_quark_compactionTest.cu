@@ -14,6 +14,11 @@
 #define __shfl_up(var, delta, width) (0)
 #endif
 
+#if CUDA_VERSION >= 9000
+#undef __shfl_up
+#define __shfl_up(var, delta, width) __shfl_up_sync(0xFFFFFFFF, var, delta, width)
+#endif
+
 static uint32_t *h_numValid[MAX_GPUS];
 static uint32_t *d_tempBranch1Nonces[MAX_GPUS];
 static uint32_t *d_partSum[2][MAX_GPUS]; // für bis zu vier partielle Summen

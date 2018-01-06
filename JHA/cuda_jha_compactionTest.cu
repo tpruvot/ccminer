@@ -72,6 +72,11 @@ void jackpot_compactTest_cpu_free(int thr_id)
 #define __shfl_up(var, delta, width) (0)
 #endif
 
+#if CUDA_VERSION >= 9000
+#undef __shfl_up
+#define __shfl_up(var, delta, width) __shfl_up_sync(0xFFFFFFFF, var, delta, width)
+#endif
+
 // Die Summenfunktion (vom NVIDIA SDK)
 __global__
 void jackpot_compactTest_gpu_SCAN(uint32_t *data, int width, uint32_t *partial_sums=NULL, cuda_compactTestFunction_t testFunc=NULL,

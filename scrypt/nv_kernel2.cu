@@ -12,6 +12,7 @@
 #include <map>
 
 #include <cuda_runtime.h>
+#include "cuda_helper.h"
 #include "miner.h"
 
 #include "salsa_kernel.h"
@@ -120,10 +121,18 @@ static __device__ uint4& operator^=(uint4& left, const uint4& right)
 __device__ __forceinline__ uint4 __shfl(const uint4 val, unsigned int lane, unsigned int width)
 {
 	return make_uint4(
-		(unsigned int)__shfl((int)val.x, lane, width),
+#if CUDA_VERSION < 9000
+        (unsigned int)__shfl((int)val.x, lane, width),
 		(unsigned int)__shfl((int)val.y, lane, width),
 		(unsigned int)__shfl((int)val.z, lane, width),
-		(unsigned int)__shfl((int)val.w, lane, width));
+		(unsigned int)__shfl((int)val.w, lane, width)
+#else
+        (unsigned int)__shfl_sync(0xFFFFFFFF, (int) val.x, lane, width),
+        (unsigned int)__shfl_sync(0xFFFFFFFF, (int) val.y, lane, width),
+        (unsigned int)__shfl_sync(0xFFFFFFFF, (int) val.z, lane, width),
+        (unsigned int)__shfl_sync(0xFFFFFFFF, (int) val.w, lane, width)
+#endif
+    );
 }
 
 __device__ __forceinline__ void __transposed_write_BC(uint4 (&B)[4], uint4 (&C)[4], uint4 *D, int spacing)
@@ -213,6 +222,7 @@ __device__ __forceinline__ void __transposed_read_BC(const uint4 *S, uint4 (&B)[
 
 	// read and rotate rows, in reverse row order
 	uint4 T1[8], T2[8];
+#if CUDA_VERSION < 9000
 	T1[7] = __ldg(&S[(spacing*2*(32*tile   ) +  lane8      + 8*__shfl(row, 0, 8))]);
 	T1[6] = __ldg(&S[(spacing*2*(32*tile+4 ) + (lane8+7)%8 + 8*__shfl(row, 1, 8))]);
 	T1[5] = __ldg(&S[(spacing*2*(32*tile+8 ) + (lane8+6)%8 + 8*__shfl(row, 2, 8))]);
@@ -221,7 +231,16 @@ __device__ __forceinline__ void __transposed_read_BC(const uint4 *S, uint4 (&B)[
 	T1[2] = __ldg(&S[(spacing*2*(32*tile+20) + (lane8+3)%8 + 8*__shfl(row, 5, 8))]);
 	T1[1] = __ldg(&S[(spacing*2*(32*tile+24) + (lane8+2)%8 + 8*__shfl(row, 6, 8))]);
 	T1[0] = __ldg(&S[(spacing*2*(32*tile+28) + (lane8+1)%8 + 8*__shfl(row, 7, 8))]);
-
+#else
+    T1[7] = __ldg(&S[(spacing*2*(32*tile   ) +  lane8      + 8*__shfl_sync(0xFFFFFFFF, row, 0, 8))]);
+	T1[6] = __ldg(&S[(spacing*2*(32*tile+4 ) + (lane8+7)%8 + 8*__shfl_sync(0xFFFFFFFF, row, 1, 8))]);
+	T1[5] = __ldg(&S[(spacing*2*(32*tile+8 ) + (lane8+6)%8 + 8*__shfl_sync(0xFFFFFFFF, row, 2, 8))]);
+	T1[4] = __ldg(&S[(spacing*2*(32*tile+12) + (lane8+5)%8 + 8*__shfl_sync(0xFFFFFFFF, row, 3, 8))]);
+	T1[3] = __ldg(&S[(spacing*2*(32*tile+16) + (lane8+4)%8 + 8*__shfl_sync(0xFFFFFFFF, row, 4, 8))]);
+	T1[2] = __ldg(&S[(spacing*2*(32*tile+20) + (lane8+3)%8 + 8*__shfl_sync(0xFFFFFFFF, row, 5, 8))]);
+	T1[1] = __ldg(&S[(spacing*2*(32*tile+24) + (lane8+2)%8 + 8*__shfl_sync(0xFFFFFFFF, row, 6, 8))]);
+	T1[0] = __ldg(&S[(spacing*2*(32*tile+28) + (lane8+1)%8 + 8*__shfl_sync(0xFFFFFFFF, row, 7, 8))]);
+#endif
 	// rotate columns down using a barrel shifter simulation
 	// column X is rotated down by (X+1) items, or up by (8-(X+1)) = (7-X) items
 #pragma unroll 8
@@ -233,6 +252,7 @@ __device__ __forceinline__ void __transposed_read_BC(const uint4 *S, uint4 (&B)[
 
 	// rotate rows
 	B[0] = T2[0];
+#if 1 //CUDA_VERSION < 9000
 	B[1] = __shfl(T2[1], lane8 + 1, 8);
 	B[2] = __shfl(T2[2], lane8 + 2, 8);
 	B[3] = __shfl(T2[3], lane8 + 3, 8);
@@ -240,7 +260,15 @@ __device__ __forceinline__ void __transposed_read_BC(const uint4 *S, uint4 (&B)[
 	C[1] = __shfl(T2[5], lane8 + 5, 8);
 	C[2] = __shfl(T2[6], lane8 + 6, 8);
 	C[3] = __shfl(T2[7], lane8 + 7, 8);
-
+#else
+	B[1] = __shfl_sync(0xFFFFFFFF, T2[1], lane8 + 1, 8);
+	B[2] = __shfl_sync(0xFFFFFFFF, T2[2], lane8 + 2, 8);
+	B[3] = __shfl_sync(0xFFFFFFFF, T2[3], lane8 + 3, 8);
+	C[0] = __shfl_sync(0xFFFFFFFF, T2[4], lane8 + 4, 8);
+	C[1] = __shfl_sync(0xFFFFFFFF, T2[5], lane8 + 5, 8);
+	C[2] = __shfl_sync(0xFFFFFFFF, T2[6], lane8 + 6, 8);
+	C[3] = __shfl_sync(0xFFFFFFFF, T2[7], lane8 + 7, 8);
+#endif
 }
 
 __device__ __forceinline__ void __transposed_xor_BC(const uint4 *S, uint4 (&B)[4], uint4 (&C)[4], int spacing, int row)

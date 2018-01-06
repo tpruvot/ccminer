@@ -277,6 +277,11 @@ __global__ void lyra2Z_gpu_hash_32_sm2(uint32_t threads, uint32_t startNounce, u
 #include "cuda_lyra2_vectors.h"
 //#include "cuda_vector_uint2x4.h"
 
+#if CUDA_VERSION >= 9000
+#undef __shfl
+#define __shfl(a, b, c) __shfl_sync(0xFFFFFFFF, a, b, c)
+#endif
+
 #define Nrow 8
 #define Ncol 8
 #define memshift 3

@@ -14,11 +14,21 @@
 #define __CUDA_ARCH__ 500
 #endif
 
+#if CUDA_VERSION >= 9000
+#undef __shfl
+#define __shfl(a, b, c) __shfl_sync(0xFFFFFFFF, a, b, c)
+#endif
+
 #define TPB 32
 
 #if __CUDA_ARCH__ >= 500
 
 #include "cuda_lyra2_vectors.h"
+
+#if CUDA_VERSION >= 9000
+#undef __shfl
+#define __shfl(a, b, c) __shfl_sync(0xFFFFFFFF, a, b, c)
+#endif
 
 #define Nrow 4
 #define Ncol 4

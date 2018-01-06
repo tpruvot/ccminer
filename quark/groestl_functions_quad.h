@@ -271,6 +271,11 @@ void G256_ShiftBytesQ_quad(uint32_t &x7, uint32_t &x6, uint32_t &x5, uint32_t &x
 #define __shfl(var, srcLane, width) (uint32_t)(var)
 #endif
 
+#if CUDA_VERSION >= 9000
+#undef __shfl
+#define __shfl(var, srcLane, width)  __shfl_sync(0xFFFFFFFF, var, srcLane, width)
+#endif 
+
 __device__ __forceinline__
 void G256_MixFunction_quad(uint32_t *r)
 {
