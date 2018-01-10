@@ -950,8 +950,10 @@ uint32_t lyra2Z_cpu_hash_32(int thr_id, uint32_t threads, uint32_t startNounce, 
 		size_t shared_mem = 0;
 
 		if (gtx750ti)
+			// 8Warpに調整のため、8192バイト確保する
 			shared_mem = 8192;
 		else
+			// 10Warpに調整のため、6144バイト確保する
 			shared_mem = 6144;
 
 		lyra2Z_gpu_hash_32_1_sm5 <<< grid2, block2 >>> (threads, startNounce, (uint2*)d_hash);
