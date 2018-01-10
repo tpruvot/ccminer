@@ -274,7 +274,7 @@ void reduceDuplexRowSetup(const int rowIn, const int rowInOut, const int rowOut,
 
 		ST4S(rowOut, Ncol - i - 1, state1, thread, threads);
 
-		//一個手前のスレッドからデータを貰う(同時に一個先のスレッドにデータを送る)
+		// simultaneously receive data from preceding thread and send data to following thread
 		uint2 Data0 = state[0];
 		uint2 Data1 = state[1];
 		uint2 Data2 = state[2];
@@ -311,7 +311,7 @@ void reduceDuplexRowt(const int rowIn, const int rowInOut, const int rowOut, uin
 
 		round_lyra(state);
 
-		//一個手前のスレッドからデータを貰う(同時に一個先のスレッドにデータを送る)
+		// simultaneously receive data from preceding thread and send data to following thread
 		uint2 Data0 = state[0];
 		uint2 Data1 = state[1];
 		uint2 Data2 = state[2];
@@ -356,7 +356,7 @@ void reduceDuplexRowt_8(const int rowInOut, uint2* state, const uint32_t thread,
 
 	round_lyra(state);
 
-	//一個手前のスレッドからデータを貰う(同時に一個先のスレッドにデータを送る)
+	// simultaneously receive data from preceding thread and send data to following thread
 	uint2 Data0 = state[0];
 	uint2 Data1 = state[1];
 	uint2 Data2 = state[2];
