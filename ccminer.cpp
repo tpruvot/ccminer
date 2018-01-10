@@ -236,6 +236,7 @@ static char const usage[] = "\
 Usage: " PROGRAM_NAME " [OPTIONS]\n\
 Options:\n\
   -a, --algo=ALGO       specify the hash algorithm to use\n\
+			anime       Animecoin\n\
 			bastion     Hefty bastion\n\
 			bitcore     Timetravel-10\n\
 			blake       Blake 256 (SFR)\n\
@@ -2317,6 +2318,9 @@ static void *miner_thread(void *userdata)
 		/* scan nonces for a proof-of-work hash */
 		switch (opt_algo) {
 
+		case ALGO_ANIME:
+			rc = scanhash_anime(thr_id, &work, max_nonce, &hashes_done);
+			break;
 		case ALGO_BASTION:
 			rc = scanhash_bastion(thr_id, &work, max_nonce, &hashes_done);
 			break;
@@ -2558,6 +2562,7 @@ static void *miner_thread(void *userdata)
 			double rate_factor = 1.0;
 			switch (opt_algo) {
 				case ALGO_JACKPOT:
+				case ALGO_ANIME:
 				case ALGO_QUARK:
 					// to stay comparable to other ccminer forks or pools
 					rate_factor = 0.5;

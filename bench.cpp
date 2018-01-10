@@ -136,6 +136,7 @@ bool bench_algo_switch_next(int thr_id)
 	if (algo == ALGO_CRYPTOLIGHT) algo++;
 	if (algo == ALGO_CRYPTONIGHT) algo++;
 	if (algo == ALGO_WILDKECCAK) algo++;
+	if (algo == ALGO_ANIME) algo++; // to fix
 	if (algo == ALGO_QUARK) algo++; // to fix
 	if (algo == ALGO_LBRY && CUDART_VERSION < 7000) algo++;
 
