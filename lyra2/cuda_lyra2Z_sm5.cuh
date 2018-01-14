@@ -225,7 +225,7 @@ void reduceDuplexV5(uint2 state[4], const uint32_t thread, const uint32_t thread
 		for (int j = 0; j < 3; j++)
 			*(DMatrix + s2 + j*threads*blockDim.x) = state1[j] ^ state[j];
 
-		//一個手前のスレッドからデータを貰う(同時に一個先のスレッドにデータを送る)
+		// simultaneously receive data from preceding thread and send data to following thread
 		uint2 Data0 = state[0];
 		uint2 Data1 = state[1];
 		uint2 Data2 = state[2];
@@ -271,7 +271,7 @@ void reduceDuplexV5(uint2 state[4], const uint32_t thread, const uint32_t thread
 		for (int j = 0; j < 3; j++)
 			*(DMatrix + s3 + j*threads*blockDim.x) = state1[j] ^ state[j];
 
-		//一個手前のスレッドからデータを貰う(同時に一個先のスレッドにデータを送る)
+		// simultaneously receive data from preceding thread and send data to following thread
 		uint2 Data0 = state[0];
 		uint2 Data1 = state[1];
 		uint2 Data2 = state[2];
@@ -316,7 +316,7 @@ void reduceDuplexV5(uint2 state[4], const uint32_t thread, const uint32_t thread
 		for (int j = 0; j < 3; j++)
 			*(DMatrix + s4 + j*threads*blockDim.x) = state1[j] ^ state[j];
 
-		//一個手前のスレッドからデータを貰う(同時に一個先のスレッドにデータを送る)
+		// simultaneously receive data from preceding thread and send data to following thread
 		uint2 Data0 = state[0];
 		uint2 Data1 = state[1];
 		uint2 Data2 = state[2];
@@ -360,7 +360,7 @@ void reduceDuplexV5(uint2 state[4], const uint32_t thread, const uint32_t thread
 		for (int j = 0; j < 3; j++)
 			*(DMatrix + s5 + j*threads*blockDim.x) = state1[j] ^ state[j];
 
-		//一個手前のスレッドからデータを貰う(同時に一個先のスレッドにデータを送る)
+		// simultaneously receive data from preceding thread and send data to following thread
 		uint2 Data0 = state[0];
 		uint2 Data1 = state[1];
 		uint2 Data2 = state[2];
@@ -406,7 +406,7 @@ void reduceDuplexV5(uint2 state[4], const uint32_t thread, const uint32_t thread
 		for (int j = 0; j < 3; j++)
 			*(DMatrix + s6 + j*threads*blockDim.x) = state1[j] ^ state[j];
 
-		//一個手前のスレッドからデータを貰う(同時に一個先のスレッドにデータを送る)
+		// simultaneously receive data from preceding thread and send data to following thread
 		uint2 Data0 = state[0];
 		uint2 Data1 = state[1];
 		uint2 Data2 = state[2];
@@ -452,7 +452,7 @@ void reduceDuplexV5(uint2 state[4], const uint32_t thread, const uint32_t thread
 		for (int j = 0; j < 3; j++)
 			*(DMatrix + s7 + j*threads*blockDim.x) = state1[j] ^ state[j];
 
-		//一個手前のスレッドからデータを貰う(同時に一個先のスレッドにデータを送る)
+		// simultaneously receive data from preceding thread and send data to following thread
 		uint2 Data0 = state[0];
 		uint2 Data1 = state[1];
 		uint2 Data2 = state[2];
@@ -505,7 +505,7 @@ void reduceDuplexRowV50(const int rowIn, const int rowInOut, const int rowOut, u
 
 		round_lyra(state);
 
-		//一個手前のスレッドからデータを貰う(同時に一個先のスレッドにデータを送る)
+		// simultaneously receive data from preceding thread and send data to following thread
 		uint2 Data0 = state[0];
 		uint2 Data1 = state[1];
 		uint2 Data2 = state[2];
@@ -554,7 +554,7 @@ void reduceDuplexRowV50_8(const int rowInOut, uint2 state[4], const uint32_t thr
 
 	round_lyra(state);
 
-	//一個手前のスレッドからデータを貰う(同時に一個先のスレッドにデータを送る)
+	// simultaneously receive data from preceding thread and send data to following thread
 	uint2 Data0 = state[0];
 	uint2 Data1 = state[1];
 	uint2 Data2 = state[2];
@@ -618,7 +618,7 @@ void reduceDuplexRowV50_8_v2(const int rowIn, const int rowOut,const int rowInOu
 
 	round_lyra(state);
 
-	//一個手前のスレッドからデータを貰う(同時に一個先のスレッドにデータを送る)
+	// simultaneously receive data from preceding thread and send data to following thread
 	uint2 Data0 = state[0];
 	uint2 Data1 = state[1];
 	uint2 Data2 = state[2];
