@@ -2251,6 +2251,7 @@ static void *miner_thread(void *userdata)
 				break;
 			case ALGO_X14:
 			case ALGO_X15:
+			case ALGO_X16R:
 				minmax = 0x300000;
 				break;
 			case ALGO_LYRA2:
@@ -2498,6 +2499,9 @@ static void *miner_thread(void *userdata)
 			break;
 		case ALGO_X15:
 			rc = scanhash_x15(thr_id, &work, max_nonce, &hashes_done);
+			break;
+		case ALGO_X16R:
+			rc = scanhash_x16r(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_X17:
 			rc = scanhash_x17(thr_id, &work, max_nonce, &hashes_done);

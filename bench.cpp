@@ -102,6 +102,7 @@ void algo_free_all(int thr_id)
 	free_x13(thr_id);
 	free_x14(thr_id);
 	free_x15(thr_id);
+	free_x16r(thr_id);
 	free_x17(thr_id);
 	free_zr5(thr_id);
 	free_scrypt(thr_id);

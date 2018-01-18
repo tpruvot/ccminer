@@ -1,5 +1,15 @@
 # ccminer
 
+Modified to add support for X16R (Ravencoin). Work in progress... lots of room for improvement. Some reports of it crashing on Windows with non-default intensity and memory settings. Thought it was working with CPU fallback for first round but seems invaild shares are being generated. Use `-a x16r`.
+
+[Windows x64 build](https://github.com/todd1251/ccminer/releases/tag/2.2.4-x16r)
+
+BTC donation address: 1AJdfCpLWPNoAMDfHF1wD5y8VgKSSTHxPo (tpruvot)
+
+RVN donation address: RWoyvvT5exmbs937QfRavf4fxB5mvijG6R (penfold)
+
+---
+
 Based on Christian Buchner's &amp; Christian H.'s CUDA project, no more active on github since 2014.
 
 Check the [README.txt](README.txt) for the additions

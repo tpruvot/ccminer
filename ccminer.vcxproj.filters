@@ -58,6 +58,9 @@
     <Filter Include="Source Files\CUDA\x15">
       <UniqueIdentifier>{a2403c22-6777-46ab-a55a-3fcc7386c974}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\CUDA\x16r">
+      <UniqueIdentifier>{5b4c4896-c3dc-4c70-988b-2c725553c120}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\CUDA\x17">
       <UniqueIdentifier>{85dfae6a-66ca-4332-8cec-98ee70cbdf2f}</UniqueIdentifier>
     </Filter>
@@ -390,6 +393,9 @@
       <Filter>Header Files\CUDA</Filter>
     </ClInclude>
     <ClInclude Include="x11\cuda_x11.h">
+      <Filter>Header Files\CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="x16r\cuda_x16r.h">
       <Filter>Header Files\CUDA</Filter>
     </ClInclude>
     <ClInclude Include="sph\blake2b.h">
@@ -753,6 +759,9 @@
     </CudaCompile>
     <CudaCompile Include="x15\whirlpool.cu">
       <Filter>Source Files\CUDA\x15</Filter>
+    </CudaCompile>
+    <CudaCompile Include="x16r\x16r.cu">
+      <Filter>Source Files\CUDA\x16r</Filter>
     </CudaCompile>
     <CudaCompile Include="x17\cuda_x17_haval256.cu">
       <Filter>Source Files\CUDA\x17</Filter>
