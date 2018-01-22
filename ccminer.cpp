@@ -256,6 +256,7 @@ Options:\n\
 "			heavy       Heavycoin\n"
 #endif
 "			hmq1725     Doubloons / Espers\n\
+			hsr         HSR (Hshare/Hcash)\n\
 			jackpot     JHA v8\n\
 			keccak      Deprecated Keccak-256\n\
 			keccakc     Keccak-256 (CreativeCoin)\n\
