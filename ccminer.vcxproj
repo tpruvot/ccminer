@@ -149,6 +149,7 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <LinkStatus>false</LinkStatus>
       <LargeAddressAware>true</LargeAddressAware>
+      <SetChecksum>true</SetChecksum>
     </Link>
     <CudaCompile>
       <CInterleavedPTX>false</CInterleavedPTX>
@@ -170,8 +171,6 @@
       <Optimization>MaxSpeed</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <EnableEnhancedInstructionSet>
-      </EnableEnhancedInstructionSet>
       <OpenMPSupport>true</OpenMPSupport>
       <CompileAsManaged>false</CompileAsManaged>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -192,6 +191,7 @@
       <AdditionalOptions>/NODEFAULTLIB:LIBCMT %(AdditionalOptions)</AdditionalOptions>
       <LinkStatus>false</LinkStatus>
       <LargeAddressAware>true</LargeAddressAware>
+      <SetChecksum>true</SetChecksum>
     </Link>
     <CudaCompile>
       <CInterleavedPTX>false</CInterleavedPTX>
@@ -226,7 +226,6 @@
     <ClCompile Include="compat\winansi.c" />
     <ClCompile Include="ccminer.cpp">
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
-      <Optimization Condition="'$(Configuration)'=='Release'">Full</Optimization>
     </ClCompile>
     <ClCompile Include="crypto\mman.c" />
     <ClCompile Include="crypto\wildkeccak-cpu.cpp" />
@@ -236,9 +235,7 @@
     <ClCompile Include="crypto\cryptolight-cpu.cpp" />
     <ClCompile Include="crypto\cryptonight-cpu.cpp" />
     <ClCompile Include="crypto\cpu\c_keccak.c" />
-    <ClCompile Include="equi\blake2\blake2bx.cpp">
-      <EnableEnhancedInstructionSet Condition="'$(Platform)'=='Win32'">StreamingSIMDExtensions</EnableEnhancedInstructionSet>
-    </ClCompile>
+    <ClCompile Include="equi\blake2\blake2bx.cpp" />
     <ClCompile Include="equi\equi-stratum.cpp" />
     <ClCompile Include="equi\equi.cpp" />
     <ClCompile Include="equi\equihash.cpp" />
