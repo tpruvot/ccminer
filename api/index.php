@@ -27,8 +27,6 @@ function getdataFromPeers()
 	global $base_url, $configs;
 	$data = array();
 	foreach ($configs as $name => $conf) {
-		print("<p>$base_url"."$conf</p>");
-
 		$json = file_get_contents($base_url.$conf);
 
 		$data[$name] = json_decode($json, TRUE);
