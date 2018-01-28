@@ -1,7 +1,18 @@
 <?php
 /* ccminer API sample UI (API 1.9) */
 
-$host = 'http://localhost/api/'; // 'http://'.$_SERVER['SERVER_NAME'].'/api/';
+// Properly retreive URL that has been called with full
+// scheme, port, reverse proxy support...
+// https://stackoverflow.com/a/8891890/8998305
+include "url_origin.inc.php";
+$origin_url = full_url($_SERVER, true);
+
+// Strip "/index.php" from the URL
+// https://stackoverflow.com/a/25850242/8998305
+$base_url = explode('/', $origin_url);
+array_pop($base_url);
+$base_url = implode('/', $base_url) . '/'; 
+
 $configs = array(
 	'LOCAL'=>'local-sample.php',
 	//'EPSYTOUR'=>'epsytour.php', /* copy local.php file and edit target IP:PORT */
@@ -13,11 +24,12 @@ error_reporting(0);
 
 function getdataFromPeers()
 {
-	global $host, $configs;
+	global $base_url, $configs;
 	$data = array();
 	foreach ($configs as $name => $conf) {
+		print("<p>$base_url"."$conf</p>");
 
-		$json = file_get_contents($host.$conf);
+		$json = file_get_contents($base_url.$conf);
 
 		$data[$name] = json_decode($json, TRUE);
 	}
