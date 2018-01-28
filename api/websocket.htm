@@ -122,7 +122,8 @@ function getData(ip, port) {
 
 $(function () {
 	//getData('192.168.0.110', 4068);
-	getData('localhost', 4068);
+        var host = window.location.hostname;
+	getData(host, 4068);
 });
 
 </script>
