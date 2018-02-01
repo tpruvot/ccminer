@@ -115,6 +115,7 @@ nvcc_ARCH :=
 #nvcc_ARCH += -gencode=arch=compute_61,code=\"sm_61,compute_61\"
 nvcc_ARCH += -gencode=arch=compute_52,code=\"sm_52,compute_52\"
 nvcc_ARCH += -gencode=arch=compute_50,code=\"sm_50,compute_50\"
+nvcc_ARCH += -gencode=arch=compute_70,code=\"sm_70,compute_70\"
 #nvcc_ARCH += -gencode=arch=compute_35,code=\"sm_35,compute_35\"
 #nvcc_ARCH += -gencode=arch=compute_30,code=\"sm_30,compute_30\"
 
@@ -176,7 +177,7 @@ JHA/cuda_jha_compactionTest.o: JHA/cuda_jha_compactionTest.cu
 
 # This object does not use cuda device code but call the different kernels (autotune)
 scrypt/salsa_kernel.o: scrypt/salsa_kernel.cu
-	$(NVCC) $(JANSSON_INCLUDES) -I. @CUDA_INCLUDES@ @CUDA_CFLAGS@ -gencode=arch=compute_30,code=\"sm_30,compute_30\" -o $@ -c $<
+	$(NVCC) $(JANSSON_INCLUDES) -I. @CUDA_INCLUDES@ @CUDA_CFLAGS@ -gencode=arch=compute_30,code=\"sm_30,compute_30\" -gencode=arch=compute_70,code=\"sm_70,compute_70\" -o $@ -c $<
 
 # These kernels are for older devices (SM)
 
