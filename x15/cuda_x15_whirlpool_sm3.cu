@@ -47,7 +47,7 @@ __device__ static uint32_t pTarget[8];
 static uint32_t *h_wnounce[MAX_GPUS] = { 0 };
 static uint32_t *d_WNonce[MAX_GPUS] = { 0 };
 
-#define HOST_MIDSTATE 1
+//#define HOST_MIDSTATE 1
 #define USE_ALL_TABLES 1
 
 __constant__ static uint64_t mixTob0Tox[256];

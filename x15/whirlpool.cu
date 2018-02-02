@@ -8,7 +8,7 @@ extern "C" {
 
 #include <cuda_helper.h>
 
-//#define SM3_VARIANT
+#define SM3_VARIANT
 
 #ifdef SM3_VARIANT
 static uint32_t *d_hash[MAX_GPUS];
