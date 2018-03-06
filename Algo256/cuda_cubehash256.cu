@@ -8,19 +8,18 @@
 #define __CUDA_ARCH__ 520
 #endif
 
-#if __CUDA_ARCH__ < 350
-#define LROT(x,bits) ((x << bits) | (x >> (32 - bits)))
-#else
-#define LROT(x, bits) __funnelshift_l(x, x, bits)
-#endif
-
 #define TPB35 576
 #define TPB50 1024
 
-#define ROTATEUPWARDS7(a)  LROT(a,7)
-#define ROTATEUPWARDS11(a) LROT(a,11)
+static __device__ __forceinline__ uint32_t ROTATEUPWARDS7(uint32_t a) {
+	return ROTL32(a, 7);
+}
+static __device__ __forceinline__ uint32_t ROTATEUPWARDS11(uint32_t a) {
+	return ROTL32(a, 11);
+}
 
-__device__ __forceinline__ void rrounds(uint32_t x[2][2][2][2][2])
+static __device__ __forceinline__
+void rrounds(uint32_t x[2][2][2][2][2])
 {
 	int r;
 
@@ -246,7 +245,7 @@ __device__ __forceinline__ void rrounds(uint32_t x[2][2][2][2][2])
 	}
 }
 
-__device__ __forceinline__
+static __device__ __forceinline__
 void Final(uint32_t x[2][2][2][2][2], uint32_t *hashval)
 {
 	/* "the integer 1 is xored into the last state word x_11111" */
@@ -276,21 +275,12 @@ void cubehash256_gpu_hash_32(uint32_t threads, uint32_t startNounce, uint2 *g_ha
 	uint32_t thread = (blockDim.x * blockIdx.x + threadIdx.x);
 	if (thread < threads)
 	{
-#if __CUDA_ARCH__ >= 500
 		uint2 Hash[4];
 
 		Hash[0] = __ldg(&g_hash[thread]);
 		Hash[1] = __ldg(&g_hash[thread + 1 * threads]);
 		Hash[2] = __ldg(&g_hash[thread + 2 * threads]);
 		Hash[3] = __ldg(&g_hash[thread + 3 * threads]);
-#else
-		uint32_t Hash[8];
-
-		LOHI(Hash[0], Hash[1], __ldg(&((uint64_t*)g_hash)[thread]));
-		LOHI(Hash[2], Hash[3], __ldg(&((uint64_t*)g_hash)[thread + 1 * threads]));
-		LOHI(Hash[4], Hash[5], __ldg(&((uint64_t*)g_hash)[thread + 2 * threads]));
-		LOHI(Hash[6], Hash[7], __ldg(&((uint64_t*)g_hash)[thread + 3 * threads]));
-#endif
 
 		uint32_t x[2][2][2][2][2] =
 		{
@@ -304,7 +294,6 @@ void cubehash256_gpu_hash_32(uint32_t threads, uint32_t startNounce, uint2 *g_ha
 			0x15815AEB, 0x4AB6AAD6, 0x9CDAF8AF, 0xD6032C0A
 		};
 
-#if __CUDA_ARCH__ >= 500
 		x[0][0][0][0][0] ^= Hash[0].x;
 		x[0][0][0][0][1] ^= Hash[0].y;
 		x[0][0][0][1][0] ^= Hash[1].x;
@@ -313,35 +302,17 @@ void cubehash256_gpu_hash_32(uint32_t threads, uint32_t startNounce, uint2 *g_ha
 		x[0][0][1][0][1] ^= Hash[2].y;
 		x[0][0][1][1][0] ^= Hash[3].x;
 		x[0][0][1][1][1] ^= Hash[3].y;
-#else
-		x[0][0][0][0][0] ^= Hash[0];
-		x[0][0][0][0][1] ^= Hash[1];
-		x[0][0][0][1][0] ^= Hash[2];
-		x[0][0][0][1][1] ^= Hash[3];
-		x[0][0][1][0][0] ^= Hash[4];
-		x[0][0][1][0][1] ^= Hash[5];
-		x[0][0][1][1][0] ^= Hash[6];
-		x[0][0][1][1][1] ^= Hash[7];
-#endif
+
 		rrounds(x);
 		x[0][0][0][0][0] ^= 0x80U;
 		rrounds(x);
 
-#if __CUDA_ARCH__ >= 500
 		Final(x, (uint32_t*)Hash);
 
 		g_hash[thread] = Hash[0];
 		g_hash[1 * threads + thread] = Hash[1];
 		g_hash[2 * threads + thread] = Hash[2];
 		g_hash[3 * threads + thread] = Hash[3];
-#else
-		Final(x, Hash);
-
-		((uint64_t*)g_hash)[thread] = ((uint64_t*)Hash)[0];
-		((uint64_t*)g_hash)[1 * threads + thread] = ((uint64_t*)Hash)[1];
-		((uint64_t*)g_hash)[2 * threads + thread] = ((uint64_t*)Hash)[2];
-		((uint64_t*)g_hash)[3 * threads + thread] = ((uint64_t*)Hash)[3];
-#endif
 	}
 }
 
