@@ -112,6 +112,9 @@
     <Filter Include="Source Files\CUDA\tribus">
       <UniqueIdentifier>{1e548d79-c217-4203-989a-a592fe2b2de3}</UniqueIdentifier>
     </Filter>
+        <Filter Include="Source Files\CUDA\x12">
+      <UniqueIdentifier>{xde48d89-fx12-1323-129a-b592fe2b2de3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="compat\jansson\dump.c">
@@ -804,6 +807,9 @@
     </CudaCompile>
     <CudaCompile Include="x11\s3.cu">
       <Filter>Source Files\CUDA\x11</Filter>
+    </CudaCompile>
+    <CudaCompile Include="x12\x12.cu">
+      <Filter>Source Files\CUDA\x12</Filter>
     </CudaCompile>
     <CudaCompile Include="x11\timetravel.cu">
       <Filter>Source Files\CUDA\x11</Filter>
