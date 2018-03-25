@@ -290,6 +290,7 @@ Options:\n\
 			whirlpool   Whirlpool algo\n\
 			x11evo      Permuted x11 (Revolver)\n\
 			x11         X11 (DarkCoin)\n\
+			x12         X12 (GalaxyCash)\n\
 			x13         X13 (MaruCoin)\n\
 			x14         X14\n\
 			x15         X15\n\
@@ -2244,6 +2245,7 @@ static void *miner_thread(void *userdata)
 			case ALGO_BITCORE:
 			case ALGO_X11EVO:
 			case ALGO_X11:
+			case ALGO_X12:
 			case ALGO_X13:
 			case ALGO_WHIRLCOIN:
 			case ALGO_WHIRLPOOL:
@@ -2489,6 +2491,9 @@ static void *miner_thread(void *userdata)
 			break;
 		case ALGO_X11:
 			rc = scanhash_x11(thr_id, &work, max_nonce, &hashes_done);
+			break;
+		case ALGO_X12:
+			rc = scanhash_x12(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_X13:
 			rc = scanhash_x13(thr_id, &work, max_nonce, &hashes_done);
