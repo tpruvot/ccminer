@@ -1,5 +1,5 @@
 
-ccminer 2.2.4 (Jan. 2018)     "lyra2v2 and keccak improvements"
+ccminer 2.2.5 (Feb 2018)                            "x16r algo"
 ---------------------------------------------------------------
 
 ***************************************************************
@@ -122,6 +122,7 @@ its command line interface and options.
                           x11         use to mine DarkCoin
                           x14         use to mine X14Coin
                           x15         use to mine Halcyon
+                          x16r        use to mine Raven
                           x17         use to mine X17
                           vanilla     use to mine Vanilla (Blake256)
                           veltor      use to mine VeltorCoin
@@ -277,6 +278,9 @@ so we can more efficiently implement new algorithms using the latest hardware
 features.
 
 >>> RELEASE HISTORY <<<
+  Feb. 2017       v2.2.5
+                  New x16r algo
+
   Jan. 04th 2017  v2.2.4
                   Improve lyra2v2
                   Higher keccak default intensity

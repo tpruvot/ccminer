@@ -1319,7 +1319,6 @@ static void Blake2Shost(uint32_t * inout, const uint32_t * inkey)
 }
 
 
-#define SHIFT 128U
 #define TPB 32
 #define TPB2 64
 
@@ -1346,7 +1345,7 @@ __launch_bounds__(TPB, 1)
 void neoscrypt_gpu_hash_chacha1()
 {
 	const uint32_t thread = (blockDim.y * blockIdx.x + threadIdx.y);
-	const uint32_t shift = SHIFT * 8U * (thread & 8191);
+	const uint32_t threads = (gridDim.x * blockDim.y);
 	const uint32_t shiftTr = 8U * thread;
 
 	uint4 X[4];
@@ -1361,7 +1360,7 @@ void neoscrypt_gpu_hash_chacha1()
 	#pragma nounroll
 	for (int i = 0; i < 128; i++)
 	{
-		uint32_t offset = shift + i * 8U;
+		uint32_t offset = 8U * (thread + threads * i);
 		for (int j = 0; j < 4; j++)
 			((uint4*)(W + offset))[j * 4 + threadIdx.x] = X[j];
 		neoscrypt_chacha(X);
@@ -1370,7 +1369,7 @@ void neoscrypt_gpu_hash_chacha1()
 	#pragma nounroll
 	for (int t = 0; t < 128; t++)
 	{
-		uint32_t offset = shift + (WarpShuffle(X[3].x, 0, 4) & 0x7F) * 8U;
+		uint32_t offset = 8U * (thread + threads * (WarpShuffle(X[3].x, 0, 4) & 0x7F));
 		for (int j = 0; j < 4; j++)
 			X[j] ^= ((uint4*)(W + offset))[j * 4 + threadIdx.x];
 		neoscrypt_chacha(X);
@@ -1391,7 +1390,7 @@ __launch_bounds__(TPB, 1)
 void neoscrypt_gpu_hash_salsa1()
 {
 	const uint32_t thread = (blockDim.y * blockIdx.x + threadIdx.y);
-	const uint32_t shift = SHIFT * 8U * (thread & 8191);
+	const uint32_t threads = (gridDim.x * blockDim.y);
 	const uint32_t shiftTr = 8U * thread;
 
 	uint4 Z[4];
@@ -1406,7 +1405,7 @@ void neoscrypt_gpu_hash_salsa1()
 	#pragma nounroll
 	for (int i = 0; i < 128; i++)
 	{
-		uint32_t offset = shift + i * 8U;
+		uint32_t offset = 8U * (thread + threads * i);
 		for (int j = 0; j < 4; j++)
 			((uint4*)(W + offset))[j * 4 + threadIdx.x] = Z[j];
 		neoscrypt_salsa(Z);
@@ -1415,7 +1414,7 @@ void neoscrypt_gpu_hash_salsa1()
 	#pragma nounroll
 	for (int t = 0; t < 128; t++)
 	{
-		uint32_t offset = shift + (WarpShuffle(Z[3].x, 0, 4) & 0x7F) * 8U;
+		uint32_t offset = 8U * (thread + threads * (WarpShuffle(Z[3].x, 0, 4) & 0x7F));
 		for (int j = 0; j < 4; j++)
 			Z[j] ^= ((uint4*)(W + offset))[j * 4 + threadIdx.x];
 		neoscrypt_salsa(Z);
@@ -1474,7 +1473,7 @@ void neoscrypt_init(int thr_id, uint32_t threads)
 	cuda_get_arch(thr_id);
 
 	CUDA_SAFE_CALL(cudaMalloc(&d_NNonce[thr_id], 2 * sizeof(uint32_t)));
-	CUDA_SAFE_CALL(cudaMalloc(&hash1, 32 * 128 * sizeof(uint64_t) * min(8192, threads)));
+	CUDA_SAFE_CALL(cudaMalloc(&hash1, 32 * 128 * sizeof(uint64_t) * threads));
 	CUDA_SAFE_CALL(cudaMalloc(&Trans1, 32 * sizeof(uint64_t) * threads));
 	CUDA_SAFE_CALL(cudaMalloc(&Trans2, 32 * sizeof(uint64_t) * threads));
 	CUDA_SAFE_CALL(cudaMalloc(&Trans3, 32 * sizeof(uint64_t) * threads));

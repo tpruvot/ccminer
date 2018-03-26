@@ -80,6 +80,8 @@ u32 umin(const u32, const u32);
 u32 umax(const u32, const u32);
 #endif
 
+#define OPT_SYNC_ALL
+
 #if CUDA_VERSION >= 9000 && __CUDA_ARCH__ >= 300
 #define __shfl2(var, srcLane)  __shfl_sync(0xFFFFFFFFu, var, srcLane)
 #undef __any
@@ -514,10 +516,11 @@ __global__ void digit_1(equi<RB, SM>* eq)
 
 	u32 si[2];
 
+#ifdef OPT_SYNC_ALL
 	// enable this to make fully safe shared mem operations;
 	// disabled gains some speed, but can rarely cause a crash
-	//__syncthreads();
-
+	__syncthreads();
+#endif
 	#pragma unroll
 	for (u32 i = 0; i != 2; ++i)
 	{
@@ -654,11 +657,9 @@ __global__ void digit_2(equi<RB, SM>* eq)
 	uint4 tt[2];
 
 	u32 si[2];
-
-	// enable this to make fully safe shared mem operations;
-	// disabled gains some speed, but can rarely cause a crash
-	//__syncthreads();
-
+#ifdef OPT_SYNC_ALL
+	__syncthreads();
+#endif
 	#pragma unroll 2
 	for (u32 i = 0; i < 2; i++)
 	{
@@ -785,9 +786,9 @@ __global__ void digit_3(equi<RB, SM>* eq)
 	uint4 tt[2];
 	u32 ta[2];
 
-	// enable this to make fully safe shared mem operations;
-	// disabled gains some speed, but can rarely cause a crash
-	//__syncthreads();
+#ifdef OPT_SYNC_ALL
+	__syncthreads();
+#endif
 
 	#pragma unroll 2
 	for (u32 i = 0; i < 2; i++)
@@ -919,11 +920,9 @@ __global__ void digit_4(equi<RB, SM>* eq)
 
 	u32 si[2];
 	uint4 tt[2];
-
-	// enable this to make fully safe shared mem operations;
-	// disabled gains some speed, but can rarely cause a crash
-	//__syncthreads();
-
+#ifdef OPT_SYNC_ALL
+	__syncthreads();
+#endif
 	#pragma unroll 2
 	for (u32 i = 0; i < 2; i++)
 	{
@@ -1035,11 +1034,9 @@ __global__ void digit_5(equi<RB, SM>* eq)
 
 	u32 si[2];
 	uint4 tt[2];
-
-	// enable this to make fully safe shared mem operations;
-	// disabled gains some speed, but can rarely cause a crash
-	//__syncthreads();
-
+#ifdef OPT_SYNC_ALL
+	__syncthreads();
+#endif
 	#pragma unroll 2
 	for (u32 i = 0; i < 2; i++)
 	{

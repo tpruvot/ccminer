@@ -60,8 +60,8 @@ IDI_ICON1               ICON                    "ccminer.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,2,4,0
- PRODUCTVERSION 2,2,4,0
+ FILEVERSION 2,2,5,0
+ PRODUCTVERSION 2,2,5,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x21L
@@ -76,10 +76,10 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "FileVersion", "2.2.4"
+            VALUE "FileVersion", "2.2.5"
             VALUE "LegalCopyright", "Copyright (C) 2018"
             VALUE "ProductName", "ccminer"
-            VALUE "ProductVersion", "2.2.4"
+            VALUE "ProductVersion", "2.2.5"
         END
     END
     BLOCK "VarFileInfo"
