@@ -5,7 +5,8 @@
 #include "compat.h"
 
 enum sha_algos {
-	ALGO_BLAKECOIN = 0,
+	ALGO_ANIME = 0,
+	ALGO_BLAKECOIN,
 	ALGO_BLAKE,
 	ALGO_BLAKE2S,
 	ALGO_BMW,
@@ -77,6 +78,7 @@ enum sha_algos {
 extern volatile enum sha_algos opt_algo;
 
 static const char *algo_names[] = {
+	"anime",
 	"blakecoin",
 	"blake",
 	"blake2s",
