@@ -29,6 +29,7 @@ extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_
 	uint32_t *ptarget = work->target;
 	uint8_t *pdata = (uint8_t*) work->data;
 	uint32_t *nonceptr = (uint32_t*) (&pdata[39]);
+	int variant = ((uint8_t*)pdata)[0] >= 7 ? ((uint8_t*)pdata)[0] - 6 : 0;
 	const uint32_t first_nonce = *nonceptr;
 	uint32_t nonce = first_nonce;
 	int dev_id = device_map[thr_id];
@@ -109,7 +110,7 @@ extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_
 
 		cryptonight_extra_cpu_setData(thr_id, pdata, ptarget);
 		cryptonight_extra_cpu_prepare(thr_id, throughput, nonce, d_ctx_state[thr_id], d_ctx_a[thr_id], d_ctx_b[thr_id], d_ctx_key1[thr_id], d_ctx_key2[thr_id]);
-		cryptonight_core_cuda(thr_id, cn_blocks, cn_threads, d_long_state[thr_id], d_ctx_state[thr_id], d_ctx_a[thr_id], d_ctx_b[thr_id], d_ctx_key1[thr_id], d_ctx_key2[thr_id]);
+		cryptonight_core_cpu_hash(thr_id, cn_blocks, cn_threads, d_long_state[thr_id], d_ctx_state[thr_id], d_ctx_a[thr_id], d_ctx_b[thr_id], d_ctx_key1[thr_id], d_ctx_key2[thr_id], variant, nonce);
 		cryptonight_extra_cpu_final(thr_id, throughput, nonce, resNonces, d_ctx_state[thr_id]);
 
 		*hashes_done = nonce - first_nonce + throughput;
@@ -121,7 +122,7 @@ extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_
 			uint32_t *tempnonceptr = (uint32_t*)(((char*)tempdata) + 39);
 			memcpy(tempdata, pdata, 76);
 			*tempnonceptr = resNonces[0];
-			cryptonight_hash(vhash, tempdata, 76);
+			cryptonight_hash(vhash, tempdata, 76, variant);
 			if(vhash[7] <= Htarg && fulltest(vhash, ptarget))
 			{
 				res = 1;
@@ -131,7 +132,7 @@ extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_
 				if(resNonces[1] != UINT32_MAX)
 				{
 					*tempnonceptr = resNonces[1];
-					cryptonight_hash(vhash, tempdata, 76);
+					cryptonight_hash(vhash, tempdata, 76, variant);
 					if(vhash[7] <= Htarg && fulltest(vhash, ptarget)) {
 						res++;
 						work->nonces[1] = resNonces[1];

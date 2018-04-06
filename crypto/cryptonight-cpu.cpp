@@ -12,6 +12,20 @@ extern "C" {
 #include "cpu/c_keccak.h"
 }
 
+#define VARIANT1_1(p) \
+  do if (variant > 0) \
+  { \
+    uint8_t tmp = ((const uint8_t*)p)[11]; \
+    uint8_t tmp1 = (tmp>>4)&1, tmp2 = (tmp>>5)&1, tmp3 = tmp1^tmp2; \
+    uint8_t tmp0 = nonce_flag ? tmp3 : tmp1 + 1; \
+    ((uint8_t*)p)[11] = (tmp & 0xef) | (tmp0<<4); \
+  } while(0)
+
+#define VARIANT1_2(p) VARIANT1_1(p)
+#define VARIANT1_INIT() \
+  const uint8_t nonce_flag = variant > 0 ? ((const uint8_t*)input)[39] & 0x01 : 0
+
+
 struct cryptonight_ctx {
 	uint8_t long_state[MEMORY];
 	union cn_slow_hash_state state;
@@ -155,12 +169,14 @@ static void xor_blocks_dst(const uint8_t* a, const uint8_t* b, uint8_t* dst) {
 	((uint64_t*) dst)[1] = ((uint64_t*) a)[1] ^ ((uint64_t*) b)[1];
 }
 
-static void cryptonight_hash_ctx(void* output, const void* input, size_t len, struct cryptonight_ctx* ctx)
+static void cryptonight_hash_ctx(void* output, const void* input, size_t len, struct cryptonight_ctx* ctx, int variant)
 {
 	size_t i, j;
 	keccak_hash_process(&ctx->state.hs, (const uint8_t*) input, len);
 	ctx->aes_ctx = (oaes_ctx*) oaes_alloc();
 	memcpy(ctx->text, ctx->state.init, INIT_SIZE_BYTE);
+
+	VARIANT1_INIT();
 
 	oaes_key_import_data(ctx->aes_ctx, ctx->state.hs.b, AES_KEY_SIZE);
 	for (i = 0; likely(i < MEMORY); i += INIT_SIZE_BYTE) {
@@ -184,14 +200,18 @@ static void cryptonight_hash_ctx(void* output, const void* input, size_t len, st
 		j = e2i(ctx->a) * AES_BLOCK_SIZE;
 		aesb_single_round(&ctx->long_state[j], ctx->c, ctx->a);
 		xor_blocks_dst(ctx->c, ctx->b, &ctx->long_state[j]);
+		VARIANT1_1(&ctx->long_state[j]);
 
 		mul_sum_xor_dst(ctx->c, ctx->a, &ctx->long_state[e2i(ctx->c) * AES_BLOCK_SIZE]);
+		VARIANT1_2(&ctx->long_state[e2i(ctx->c) * AES_BLOCK_SIZE]);
 
 		j = e2i(ctx->a) * AES_BLOCK_SIZE;
 		aesb_single_round(&ctx->long_state[j], ctx->b, ctx->a);
 		xor_blocks_dst(ctx->b, ctx->c, &ctx->long_state[j]);
+		VARIANT1_1(&ctx->long_state[j]);
 
 		mul_sum_xor_dst(ctx->b, ctx->a, &ctx->long_state[e2i(ctx->b) * AES_BLOCK_SIZE]);
+		VARIANT1_2(&ctx->long_state[e2i(ctx->b) * AES_BLOCK_SIZE]);
 	}
 
 	memcpy(ctx->text, ctx->state.init, INIT_SIZE_BYTE);
@@ -219,9 +239,9 @@ static void cryptonight_hash_ctx(void* output, const void* input, size_t len, st
 	oaes_free((OAES_CTX **) &ctx->aes_ctx);
 }
 
-void cryptonight_hash(void* output, const void* input, size_t len)
+void cryptonight_hash(void* output, const void* input, size_t len, int variant)
 {
 	struct cryptonight_ctx *ctx = (struct cryptonight_ctx*)malloc(sizeof(struct cryptonight_ctx));
-	cryptonight_hash_ctx(output, input, len, ctx);
+	cryptonight_hash_ctx(output, input, len, ctx, variant);
 	free(ctx);
 }

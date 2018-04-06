@@ -136,7 +136,7 @@ static inline void exit_if_cudaerror(int thr_id, const char *src, int line)
 		exit(1);
 	}
 }
-void cryptonight_core_cuda(int thr_id, int blocks, int threads, uint64_t *d_long_state, uint64_t *d_ctx_state, uint32_t *d_ctx_a, uint32_t *d_ctx_b, uint32_t *d_ctx_key1, uint32_t *d_ctx_key2);
+void cryptonight_core_cpu_hash(int thr_id, int blocks, int threads, uint64_t *d_long_state, uint64_t *d_ctx_state, uint32_t *d_ctx_a, uint32_t *d_ctx_b, uint32_t *d_ctx_key1, uint32_t *d_ctx_key2, int variant, uint8_t nonce_flag);
 
 void cryptonight_extra_cpu_setData(int thr_id, const void *data, const void *pTargetIn);
 void cryptonight_extra_cpu_init(int thr_id, uint32_t threads);
