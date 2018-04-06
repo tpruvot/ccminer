@@ -232,6 +232,8 @@ int opt_api_mcast_port = 4068;
 
 bool opt_stratum_stats = false;
 
+int cryptonight_fork = 1;
+
 static char const usage[] = "\
 Usage: " PROGRAM_NAME " [OPTIONS]\n\
 Options:\n\
@@ -243,7 +245,7 @@ Options:\n\
 			blakecoin   Fast Blake 256 (8 rounds)\n\
 			bmw         BMW 256\n\
 			cryptolight AEON cryptonight (MEM/2)\n\
-			cryptonight XMR cryptonight\n\
+			cryptonight XMR cryptonight v1 (old)\n\
 			c11/flax    X11 variant\n\
 			decred      Decred Blake256\n\
 			deep        Deepcoin\n\
@@ -251,6 +253,7 @@ Options:\n\
 			dmd-gr      Diamond-Groestl\n\
 			fresh       Freshcoin (shavite 80)\n\
 			fugue256    Fuguecoin\n\
+			graft       Cryptonight v8\n\
 			groestl     Groestlcoin\n"
 #ifdef WITH_HEAVY_ALGO
 "			heavy       Heavycoin\n"
@@ -265,6 +268,7 @@ Options:\n\
 			lyra2v2     VertCoin\n\
 			lyra2z      ZeroCoin (3rd impl)\n\
 			myr-gr      Myriad-Groestl\n\
+			monero      XMR cryptonight v7 (new)\n\
 			neoscrypt   FeatherCoin, Phoenix, UFO...\n\
 			nist5       NIST5 (TalkCoin)\n\
 			penta       Pentablake hash (5x Blake 512)\n\
@@ -281,6 +285,7 @@ Options:\n\
 			skein       Skein SHA2 (Skeincoin)\n\
 			skein2      Double Skein (Woodcoin)\n\
 			skunk       Skein Cube Fugue Streebog\n\
+			stellite    Cryptonight v3\n\
 			s3          S3 (1Coin)\n\
 			timetravel  Machinecoin permuted x8\n\
 			tribus      Denarius\n\
@@ -570,7 +575,13 @@ static bool get_blocktemplate(CURL *curl, struct work *work);
 
 void get_currentalgo(char* buf, int sz)
 {
-	snprintf(buf, sz, "%s", algo_names[opt_algo]);
+  int algo = opt_algo;
+
+  if (algo == ALGO_CRYPTONIGHT) {
+    algo = get_cryptonight_algo(cryptonight_fork);
+  }
+
+  snprintf(buf, sz, "%s", algo_names[algo]);
 }
 
 void format_hashrate(double hashrate, char *output)
@@ -2345,7 +2356,13 @@ static void *miner_thread(void *userdata)
 			rc = scanhash_cryptolight(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_CRYPTONIGHT:
-			rc = scanhash_cryptonight(thr_id, &work, max_nonce, &hashes_done);
+      int variant = 0;
+
+      if (cryptonight_fork > 1) {
+        variant = ((((unsigned char*)work->data)[0] >= cryptonight_fork) ? ((unsigned char*)work->data)[0] - cryptonight_fork + 1 : 0 );
+      }
+
+			rc = scanhash_cryptonight(thr_id, &work, max_nonce, &hashes_done, variant);
 			break;
 		case ALGO_DECRED:
 			rc = scanhash_decred(thr_id, &work, max_nonce, &hashes_done);
@@ -3105,6 +3122,29 @@ void parse_arg(int key, char *arg)
 			case ALGO_SCRYPT_JANE: opt_nfactor = 14; break;
 			}
 		}
+
+    //fix cryptonight
+    switch (opt_algo) {
+      case ALGO_MONERO:
+        opt_algo = ALGO_CRYPTONIGHT;
+        cryptonight_fork = 7;
+        break;
+
+      case ALGO_GRAFT:
+        opt_algo = ALGO_CRYPTONIGHT;
+        cryptonight_fork = 8;
+        break;
+
+      case ALGO_STELLITE:
+        opt_algo = ALGO_CRYPTONIGHT;
+        cryptonight_fork = 3;
+        break;
+
+      case ALGO_CRYPTONIGHT:
+        cryptonight_fork = 1;
+        break;
+    }
+
 		break;
 	case 'b':
 		p = strstr(arg, ":");

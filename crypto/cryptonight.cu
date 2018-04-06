@@ -22,7 +22,7 @@ static uint32_t *d_ctx_b[MAX_GPUS];
 
 static bool init[MAX_GPUS] = { 0 };
 
-extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done)
+extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done, int variant)
 {
 	int res = 0;
 	uint32_t throughput = 0;
@@ -30,7 +30,6 @@ extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_
 	uint32_t *ptarget = work->target;
 	uint8_t *pdata = (uint8_t*) work->data;
 	uint32_t *nonceptr = (uint32_t*) (&pdata[39]);
-	int variant = ((uint8_t*)pdata)[0] >= 7 ? ((uint8_t*)pdata)[0] - 6 : 0;
 	const uint32_t first_nonce = *nonceptr;
 	uint32_t nonce = first_nonce;
 	int dev_id = device_map[thr_id];
