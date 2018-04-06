@@ -11,8 +11,8 @@ static __thread bool gpu_init_shown = false;
 #define gpulog_init(p,thr,fmt, ...) if (!gpu_init_shown) \
 	gpulog(p, thr, fmt, ##__VA_ARGS__)
 
-static uint64_t *d_long_state[MAX_GPUS];
-static uint64_t *d_ctx_state[MAX_GPUS];
+static uint32_t *d_long_state[MAX_GPUS];
+static uint32_t *d_ctx_state[MAX_GPUS];
 static uint32_t *d_ctx_key1[MAX_GPUS];
 static uint32_t *d_ctx_key2[MAX_GPUS];
 static uint32_t *d_ctx_text[MAX_GPUS];
@@ -80,11 +80,11 @@ extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_
 		}
 
 		const size_t alloc = MEMORY * throughput;
-		cryptonight_extra_cpu_init(thr_id, throughput);
+		cryptonight_extra_cpu_init(thr_id/*, throughput*/);
 
 		cudaMalloc(&d_long_state[thr_id], alloc);
 		exit_if_cudaerror(thr_id, __FUNCTION__, __LINE__);
-		cudaMalloc(&d_ctx_state[thr_id], 208 * throughput); // 52*4 (200 is not aligned 16)
+		cudaMalloc(&d_ctx_state[thr_id], 52 * sizeof(uint32_t) * throughput);
 		exit_if_cudaerror(thr_id, __FUNCTION__, __LINE__);
 		cudaMalloc(&d_ctx_key1[thr_id], 40 * sizeof(uint32_t) * throughput);
 		exit_if_cudaerror(thr_id, __FUNCTION__, __LINE__);

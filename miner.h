@@ -279,7 +279,7 @@ extern int scanhash_blake2s(int thr_id, struct work *work, uint32_t max_nonce, u
 extern int scanhash_bmw(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
 extern int scanhash_c11(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
 extern int scanhash_cryptolight(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
-extern int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
+extern int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done, int variant);
 extern int scanhash_decred(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
 extern int scanhash_deep(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
 extern int scanhash_equihash(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
@@ -570,6 +570,8 @@ extern long  device_sm[MAX_GPUS];
 extern uint32_t device_plimit[MAX_GPUS];
 extern uint32_t gpus_intensity[MAX_GPUS];
 extern int opt_cudaschedule;
+
+extern int cryptonight_fork;
 
 // cuda.cpp
 int cuda_num_devices();

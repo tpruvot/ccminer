@@ -1824,6 +1824,7 @@ static void *miner_thread(void *userdata)
 	bool extrajob = false;
 	char s[16];
 	int rc = 0;
+  int variant;
 
 	memset(&work, 0, sizeof(work)); // prevent work from being used uninitialized
 
@@ -2356,10 +2357,10 @@ static void *miner_thread(void *userdata)
 			rc = scanhash_cryptolight(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_CRYPTONIGHT:
-      int variant = 0;
+      variant = 0;
 
       if (cryptonight_fork > 1) {
-        variant = ((((unsigned char*)work->data)[0] >= cryptonight_fork) ? ((unsigned char*)work->data)[0] - cryptonight_fork + 1 : 0 );
+        variant = ((((unsigned char*)work.data)[0] >= cryptonight_fork) ? ((unsigned char*)work.data)[0] - cryptonight_fork + 1 : 0 );
       }
 
 			rc = scanhash_cryptonight(thr_id, &work, max_nonce, &hashes_done, variant);

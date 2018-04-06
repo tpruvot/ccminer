@@ -9,12 +9,12 @@
 #include <cuda_helper.h>
 #include "cryptonight.h"
 
-typedef uint8_t BitSequence;
-typedef uint64_t DataLength;
+typedef unsigned char BitSequence;
+typedef unsigned long long DataLength;
 
-static uint32_t *d_input[MAX_GPUS] = { 0 };
+static uint32_t *d_input[MAX_GPUS];
 static uint32_t *d_target[MAX_GPUS];
-static uint32_t *d_result[MAX_GPUS];
+static uint32_t *d_resultNonce[MAX_GPUS];
 
 #include "cn_keccak.cuh"
 #include "cn_blake.cuh"

@@ -10,9 +10,9 @@
 #include <unistd.h>
 #endif
 
-extern int device_arch[MAX_GPU][2];
-extern int device_bfactor[MAX_GPU];
-extern int device_bsleep[MAX_GPU];
+extern int device_arch[MAX_GPUS][2];
+extern int device_bfactor[MAX_GPUS];
+extern int device_bsleep[MAX_GPUS];
 
 #include "cn_aes.cuh"
 

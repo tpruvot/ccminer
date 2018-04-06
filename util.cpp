@@ -2185,7 +2185,7 @@ void print_hash_tests(void)
 	cryptolight_hash(&hash[0], &buf[0], 76);
 	printpfx("cryptolight", hash);
 
-	cryptonight_hash(&hash[0], &buf[0], 76);
+	cryptonight_hash(&hash[0], &buf[0], 76, 0);
 	printpfx("cryptonight", hash);
 
 	memset(buf, 0, 180);
