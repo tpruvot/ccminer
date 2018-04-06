@@ -218,3 +218,13 @@ __host__ void cryptonight_extra_cpu_final(int thr_id, int threads, uint32_t star
 	cudaMemcpy(resnonce, d_resultNonce[thr_id], 2 * sizeof(uint32_t), cudaMemcpyDeviceToHost);
 	exit_if_cudaerror(thr_id, __FILE__, __LINE__);
 }
+
+__host__ void cryptonight_extra_cpu_free(int thr_id)
+{
+	if (d_input[thr_id]) {
+		cudaFree(d_input[thr_id]);
+		cudaFree(d_target[thr_id]);
+		cudaFree(d_resultNonce[thr_id]);
+		d_input[thr_id] = NULL;
+	}
+}

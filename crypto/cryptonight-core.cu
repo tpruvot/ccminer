@@ -10,9 +10,7 @@
 #include <unistd.h>
 #endif
 
-extern int device_arch[MAX_GPUS][2];
 extern int device_bfactor[MAX_GPUS];
-extern int device_bsleep[MAX_GPUS];
 
 #include "cn_aes.cuh"
 
@@ -221,20 +219,26 @@ __host__ void cryptonight_core_cpu_hash(int thr_id, int blocks, int threads, uin
 	dim3 block4(threads << 2);
 	dim3 block8(threads << 3);
 
-	int i, partcount = 1 << device_bfactor[thr_id];
+	uint32_t i;
+	const uint32_t bfactor = (uint32_t) device_bfactor[thr_id];
+	const uint32_t partcount = 1 << bfactor;
+	const uint32_t throughput = (uint32_t) (blocks*threads);
 
-	cryptonight_core_gpu_phase1 <<< grid, block8 >>>(blocks*threads, d_long_state, d_ctx_state, d_ctx_key1);
+	const int bsleep = bfactor ? 100 : 0;
+	//const int dev_id = device_map[thr_id];
+
+	cryptonight_core_gpu_phase1 <<< grid, block8 >>>(throughput, d_long_state, d_ctx_state, d_ctx_key1);
 	exit_if_cudaerror(thr_id, __FILE__, __LINE__);
-	if(partcount > 1) usleep(device_bsleep[thr_id]);
+	if(partcount > 1) usleep(bsleep);
 
 	for(i = 0; i < partcount; i++)
 	{
-		cryptonight_core_gpu_phase2 <<< grid, block4 >>>(blocks*threads, device_bfactor[thr_id], i, d_long_state, d_ctx_a, d_ctx_b, variant, d_ctx_tweak1_2);
+		cryptonight_core_gpu_phase2 <<< grid, block4 >>>(throughput, bfactor, i, d_long_state, d_ctx_a, d_ctx_b, variant, d_ctx_tweak1_2);
 		exit_if_cudaerror(thr_id, __FILE__, __LINE__);
-		if(partcount > 1) usleep(device_bsleep[thr_id]);
+		if(partcount > 1) usleep(bsleep);
 	}
 	cudaDeviceSynchronize();
 	exit_if_cudaerror(thr_id, __FILE__, __LINE__);
-	cryptonight_core_gpu_phase3 <<< grid, block8 >>>(blocks*threads, d_long_state, d_ctx_state, d_ctx_key2);
+	cryptonight_core_gpu_phase3 <<< grid, block8 >>>(throughput, d_long_state, d_ctx_state, d_ctx_key2);
 	exit_if_cudaerror(thr_id, __FILE__, __LINE__);
 }
