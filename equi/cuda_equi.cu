@@ -88,6 +88,9 @@ u32 umax(const u32, const u32);
 #define __any(p) __any_sync(0xFFFFFFFFu, p)
 #else
 #define __shfl2 __shfl
+#if __CUDA_ARCH__ <= 110
+#error __any() is not supported on SM 1.1 and lower
+#endif
 #endif
 
 typedef u32 proof[PROOFSIZE];
