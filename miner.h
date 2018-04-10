@@ -662,6 +662,7 @@ struct stratum_job {
 	unsigned char *xnonce2;
 	int merkle_count;
 	unsigned char **merkle;
+	unsigned char accumulatorcheckpoint[32];
 	unsigned char version[4];
 	unsigned char nbits[4];
 	unsigned char ntime[4];
