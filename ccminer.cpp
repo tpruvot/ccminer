@@ -257,9 +257,11 @@ Options:\n\
 "			heavy       Heavycoin\n"
 #endif
 "			hmq1725     Doubloons / Espers\n\
-			jackpot     JHA v8\n\
+			hsr         HSR (HShare)\n\
 			keccak      Deprecated Keccak-256\n\
 			keccakc     Keccak-256 (CreativeCoin)\n\
+			jackpot     JHA v8\n\
+			jha         JHA v8\n\
 			lbry        LBRY Credits (Sha/Ripemd)\n\
 			luffa       Joincoin\n\
 			lyra2       CryptoCoin\n\
