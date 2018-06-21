@@ -11,17 +11,18 @@ static __thread bool gpu_init_shown = false;
 #define gpulog_init(p,thr,fmt, ...) if (!gpu_init_shown) \
 	gpulog(p, thr, fmt, ##__VA_ARGS__)
 
-static uint64_t *d_long_state[MAX_GPUS];
-static uint64_t *d_ctx_state[MAX_GPUS];
+static uint32_t *d_long_state[MAX_GPUS];
+static uint32_t *d_ctx_state[MAX_GPUS];
 static uint32_t *d_ctx_key1[MAX_GPUS];
 static uint32_t *d_ctx_key2[MAX_GPUS];
 static uint32_t *d_ctx_text[MAX_GPUS];
+static uint32_t *d_ctx_tweak1_2[MAX_GPUS];
 static uint32_t *d_ctx_a[MAX_GPUS];
 static uint32_t *d_ctx_b[MAX_GPUS];
 
 static bool init[MAX_GPUS] = { 0 };
 
-extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done)
+extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done, int variant)
 {
 	int res = 0;
 	uint32_t throughput = 0;
@@ -79,11 +80,11 @@ extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_
 		}
 
 		const size_t alloc = MEMORY * throughput;
-		cryptonight_extra_cpu_init(thr_id, throughput);
+		cryptonight_extra_cpu_init(thr_id/*, throughput*/);
 
 		cudaMalloc(&d_long_state[thr_id], alloc);
 		exit_if_cudaerror(thr_id, __FUNCTION__, __LINE__);
-		cudaMalloc(&d_ctx_state[thr_id], 208 * throughput); // 52*4 (200 is not aligned 16)
+		cudaMalloc(&d_ctx_state[thr_id], 52 * sizeof(uint32_t) * throughput);
 		exit_if_cudaerror(thr_id, __FUNCTION__, __LINE__);
 		cudaMalloc(&d_ctx_key1[thr_id], 40 * sizeof(uint32_t) * throughput);
 		exit_if_cudaerror(thr_id, __FUNCTION__, __LINE__);
@@ -95,6 +96,8 @@ extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_
 		exit_if_cudaerror(thr_id, __FUNCTION__, __LINE__);
 		cudaMalloc(&d_ctx_b[thr_id], 4 * sizeof(uint32_t) * throughput);
 		exit_if_cudaerror(thr_id, __FUNCTION__, __LINE__);
+		cudaMalloc(&d_ctx_tweak1_2[thr_id], 2 * sizeof(uint32_t) * throughput);
+		exit_if_cudaerror(thr_id, __FILE__, __LINE__);
 
 		gpu_init_shown = true;
 		init[thr_id] = true;
@@ -108,8 +111,8 @@ extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_
 		uint32_t resNonces[2] = { UINT32_MAX, UINT32_MAX };
 
 		cryptonight_extra_cpu_setData(thr_id, pdata, ptarget);
-		cryptonight_extra_cpu_prepare(thr_id, throughput, nonce, d_ctx_state[thr_id], d_ctx_a[thr_id], d_ctx_b[thr_id], d_ctx_key1[thr_id], d_ctx_key2[thr_id]);
-		cryptonight_core_cuda(thr_id, cn_blocks, cn_threads, d_long_state[thr_id], d_ctx_state[thr_id], d_ctx_a[thr_id], d_ctx_b[thr_id], d_ctx_key1[thr_id], d_ctx_key2[thr_id]);
+		cryptonight_extra_cpu_prepare(thr_id, throughput, nonce, d_ctx_state[thr_id], d_ctx_a[thr_id], d_ctx_b[thr_id], d_ctx_key1[thr_id], d_ctx_key2[thr_id], variant, d_ctx_tweak1_2[thr_id]);
+		cryptonight_core_cpu_hash(thr_id, cn_blocks, cn_threads, d_long_state[thr_id], d_ctx_state[thr_id], d_ctx_a[thr_id], d_ctx_b[thr_id], d_ctx_key1[thr_id], d_ctx_key2[thr_id], variant, d_ctx_tweak1_2[thr_id]);
 		cryptonight_extra_cpu_final(thr_id, throughput, nonce, resNonces, d_ctx_state[thr_id]);
 
 		*hashes_done = nonce - first_nonce + throughput;
@@ -121,8 +124,8 @@ extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_
 			uint32_t *tempnonceptr = (uint32_t*)(((char*)tempdata) + 39);
 			memcpy(tempdata, pdata, 76);
 			*tempnonceptr = resNonces[0];
-			cryptonight_hash(vhash, tempdata, 76);
-			if(vhash[7] <= Htarg && fulltest(vhash, ptarget))
+			const int rc = cryptonight_hash(vhash, tempdata, 76, variant);
+			if(rc && (vhash[7] <= Htarg) && fulltest(vhash, ptarget))
 			{
 				res = 1;
 				work->nonces[0] = resNonces[0];
@@ -131,8 +134,8 @@ extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_
 				if(resNonces[1] != UINT32_MAX)
 				{
 					*tempnonceptr = resNonces[1];
-					cryptonight_hash(vhash, tempdata, 76);
-					if(vhash[7] <= Htarg && fulltest(vhash, ptarget)) {
+					const int rc = cryptonight_hash(vhash, tempdata, 76, variant);
+					if(rc && (vhash[7] <= Htarg) && fulltest(vhash, ptarget)) {
 						res++;
 						work->nonces[1] = resNonces[1];
 					} else {

@@ -7,7 +7,7 @@ static __thread uint32_t cn_blocks  = 32;
 static __thread uint32_t cn_threads = 16;
 
 static uint32_t *d_long_state[MAX_GPUS];
-static uint64_t *d_ctx_state[MAX_GPUS];
+static uint32_t *d_ctx_state[MAX_GPUS];
 static uint32_t *d_ctx_key1[MAX_GPUS];
 static uint32_t *d_ctx_key2[MAX_GPUS];
 static uint32_t *d_ctx_text[MAX_GPUS];
@@ -63,11 +63,11 @@ extern "C" int scanhash_cryptolight(int thr_id, struct work* work, uint32_t max_
 		}
 
 		const size_t alloc = MEMORY * throughput;
-		cryptonight_extra_cpu_init(thr_id, throughput);
+		cryptonight_extra_cpu_init(thr_id/*, throughput*/);
 
 		cudaMalloc(&d_long_state[thr_id], alloc);
 		exit_if_cudaerror(thr_id, __FUNCTION__, __LINE__);
-		cudaMalloc(&d_ctx_state[thr_id], 26 * sizeof(uint64_t) * throughput);
+		cudaMalloc(&d_ctx_state[thr_id], 52 * sizeof(uint32_t) * throughput);
 		exit_if_cudaerror(thr_id, __FUNCTION__, __LINE__);
 		cudaMalloc(&d_ctx_key1[thr_id], 40 * sizeof(uint32_t) * throughput);
 		exit_if_cudaerror(thr_id, __FUNCTION__, __LINE__);
@@ -91,7 +91,7 @@ extern "C" int scanhash_cryptolight(int thr_id, struct work* work, uint32_t max_
 		uint32_t resNonces[2] = { UINT32_MAX, UINT32_MAX };
 
 		cryptonight_extra_cpu_setData(thr_id, pdata, ptarget);
-		cryptonight_extra_cpu_prepare(thr_id, throughput, nonce, d_ctx_state[thr_id], d_ctx_a[thr_id], d_ctx_b[thr_id], d_ctx_key1[thr_id], d_ctx_key2[thr_id]);
+		cryptonight_extra_cpu_prepare(thr_id, throughput, nonce, d_ctx_state[thr_id], d_ctx_a[thr_id], d_ctx_b[thr_id], d_ctx_key1[thr_id], d_ctx_key2[thr_id], 0, 0);
 		cryptolight_core_cpu_hash(thr_id, cn_blocks, cn_threads, d_long_state[thr_id], d_ctx_state[thr_id], d_ctx_a[thr_id], d_ctx_b[thr_id], d_ctx_key1[thr_id], d_ctx_key2[thr_id]);
 		cryptonight_extra_cpu_final(thr_id, throughput, nonce, resNonces, d_ctx_state[thr_id]);
 

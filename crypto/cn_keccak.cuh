@@ -1,4 +1,5 @@
-__constant__ uint64_t keccakf_rndc[24] = {
+__constant__ uint64_t keccakf_rndc[24] =
+{
 	0x0000000000000001, 0x0000000000008082, 0x800000000000808a,
 	0x8000000080008000, 0x000000000000808b, 0x0000000080000001,
 	0x8000000080008081, 0x8000000000008009, 0x000000000000008a,
@@ -33,8 +34,7 @@ __constant__ uint64_t keccakf_rndc[24] = {
 #define rotl64_2(x, y) rotl64_1(((x) >> 32) | ((x) << 32), (y))
 #define bitselect(a, b, c) ((a) ^ ((c) & ((b) ^ (a))))
 
-__device__ __forceinline__
-void cn_keccakf2(uint64_t *s)
+__device__ __forceinline__ void cn_keccakf2(uint64_t *s)
 {
 	uint8_t i;
 
@@ -91,8 +91,7 @@ void cn_keccakf2(uint64_t *s)
 	}
 }
 
-__device__ __forceinline__
-void cn_keccakf(uint64_t *s)
+__device__ __forceinline__ void cn_keccakf(uint64_t *s)
 {
 	uint64_t bc[5], tmpxor[5], tmp1, tmp2;
 
@@ -194,8 +193,7 @@ void cn_keccakf(uint64_t *s)
 	}
 }
 
-__device__ __forceinline__
-void cn_keccak(const uint8_t * __restrict__ in, uint8_t * __restrict__ md)
+__device__ __forceinline__ void cn_keccak(const uint32_t * __restrict__ in, uint64_t * __restrict__ md)
 {
 	uint64_t st[25];
 
