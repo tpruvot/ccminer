@@ -1743,6 +1743,7 @@ static bool stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 		case ALGO_PHI2:
 		case ALGO_TIMETRAVEL:
 		case ALGO_BITCORE:
+		case ALGO_EXOSIS:
 		case ALGO_X16R:
 		case ALGO_X16S:
 			work_set_target(work, sctx->job.diff / (256.0 * opt_difficulty));
@@ -2284,6 +2285,7 @@ static void *miner_thread(void *userdata)
 			case ALGO_SKUNK:
 			case ALGO_TIMETRAVEL:
 			case ALGO_BITCORE:
+			case ALGO_EXOSIS:
 			case ALGO_X11EVO:
 			case ALGO_X11:
 			case ALGO_X12:
@@ -2541,6 +2543,9 @@ static void *miner_thread(void *userdata)
 			break;
 		case ALGO_BITCORE:
 			rc = scanhash_bitcore(thr_id, &work, max_nonce, &hashes_done);
+			break;
+		case ALGO_EXOSIS:
+			rc = scanhash_exosis(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_X11EVO:
 			rc = scanhash_x11evo(thr_id, &work, max_nonce, &hashes_done);
