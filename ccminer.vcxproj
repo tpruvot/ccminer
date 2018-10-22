@@ -576,6 +576,7 @@
     <CudaCompile Include="x11\s3.cu" />
     <CudaCompile Include="x11\timetravel.cu" />
     <CudaCompile Include="x11\bitcore.cu" />
+    <CudaCompile Include="x11\exosis.cu" />
     <CudaCompile Include="x11\veltor.cu" />
     <CudaCompile Include="x11\x11.cu" />
     <CudaCompile Include="x11\x11evo.cu" />
