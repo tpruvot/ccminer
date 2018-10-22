@@ -89,6 +89,7 @@ its command line interface and options.
                           deep        use to mine Deepcoin
                           dmd-gr      use to mine Diamond-Groestl
                           equihash    use to mine ZEC, HUSH and KMD
+                          exosis      use to mine EXO
                           fresh       use to mine Freshcoin
                           fugue256    use to mine Fuguecoin
                           groestl     use to mine Groestlcoin
