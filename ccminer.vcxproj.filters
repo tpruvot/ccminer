@@ -841,6 +841,9 @@
     <CudaCompile Include="x11\bitcore.cu">
       <Filter>Source Files\CUDA\x11</Filter>
     </CudaCompile>
+    <CudaCompile Include="x11\exosis.cu">
+      <Filter>Source Files\CUDA\x11</Filter>
+    </CudaCompile>
     <CudaCompile Include="x11\veltor.cu">
       <Filter>Source Files\CUDA\x11</Filter>
     </CudaCompile>
