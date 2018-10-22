@@ -61,6 +61,7 @@ void algo_free_all(int thr_id)
 	free_decred(thr_id);
 	free_deep(thr_id);
 	free_equihash(thr_id);
+	free_exosis(thr_id);
 	free_keccak256(thr_id);
 	free_fresh(thr_id);
 	free_fugue256(thr_id);
