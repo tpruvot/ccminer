@@ -117,6 +117,7 @@ its command line interface and options.
                           scrypt-jane use to mine Chacha coins like Cache and Ultracoin
                           s3          use to mine 1coin (ONE)
                           sha256t     use to mine OneCoin (OC)
+			  sha256q     use to mine Pyrite
                           sia         use to mine SIA
                           sib         use to mine Sibcoin
                           skein       use to mine Skeincoin

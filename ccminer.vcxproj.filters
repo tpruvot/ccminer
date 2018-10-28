@@ -979,6 +979,12 @@
     <CudaCompile Include="sha256\sha256t.cu">
       <Filter>Source Files\CUDA\sha256</Filter>
     </CudaCompile>
+    <CudaCompile Include="sha256\cuda_sha256q.cu">
+      <Filter>Source Files\CUDA\sha256</Filter>
+    </CudaCompile>
+    <CudaCompile Include="sha256\sha256q.cu">
+      <Filter>Source Files\CUDA\sha256</Filter>
+    </CudaCompile>
     <CudaCompile Include="sia\sia.cu">
       <Filter>Source Files\sia</Filter>
     </CudaCompile>
