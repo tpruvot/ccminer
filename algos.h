@@ -7,6 +7,7 @@
 enum sha_algos {
 	ALGO_BLAKECOIN = 0,
 	ALGO_BLAKE,
+	ALGO_BLAKE2B,
 	ALGO_BLAKE2S,
 	ALGO_ALLIUM,
 	ALGO_BMW,
@@ -18,6 +19,7 @@ enum sha_algos {
 	ALGO_DECRED,
 	ALGO_DMD_GR,
 	ALGO_EQUIHASH,
+	ALGO_EXOSIS,
 	ALGO_FRESH,
 	ALGO_FUGUE256,		/* Fugue256 */
 	ALGO_GROESTL,
@@ -85,6 +87,7 @@ extern volatile enum sha_algos opt_algo;
 static const char *algo_names[] = {
 	"blakecoin",
 	"blake",
+	"blake2b",
 	"blake2s",
 	"allium",
 	"bmw",
@@ -96,6 +99,7 @@ static const char *algo_names[] = {
 	"decred",
 	"dmd-gr",
 	"equihash",
+	"exosis",
 	"fresh",
 	"fugue256",
 	"groestl",

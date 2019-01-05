@@ -243,6 +243,7 @@ Options:\n\
 			bastion     Hefty bastion\n\
 			bitcore     Timetravel-10\n\
 			blake       Blake 256 (SFR)\n\
+			blake2b     Blake2-B 512 (BCX)\n\
 			blake2s     Blake2-S 256 (NEVA)\n\
 			blakecoin   Fast Blake 256 (8 rounds)\n\
 			bmw         BMW 256\n\
@@ -252,6 +253,7 @@ Options:\n\
 			decred      Decred Blake256\n\
 			deep        Deepcoin\n\
 			equihash    Zcash Equihash\n\
+			exosis      Exosis timetravel\n\
 			dmd-gr      Diamond-Groestl\n\
 			fresh       Freshcoin (shavite 80)\n\
 			fugue256    Fuguecoin\n\
@@ -1742,6 +1744,7 @@ static bool stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 		case ALGO_PHI2:
 		case ALGO_TIMETRAVEL:
 		case ALGO_BITCORE:
+		case ALGO_EXOSIS:
 		case ALGO_X16R:
 		case ALGO_X16S:
 			work_set_target(work, sctx->job.diff / (256.0 * opt_difficulty));
@@ -2258,6 +2261,7 @@ static void *miner_thread(void *userdata)
 			//case ALGO_WHIRLPOOLX:
 				minmax = 0x40000000U;
 				break;
+			case ALGO_BLAKE2B:
 			case ALGO_KECCAK:
 			case ALGO_KECCAKC:
 			case ALGO_LBRY:
@@ -2283,6 +2287,7 @@ static void *miner_thread(void *userdata)
 			case ALGO_SKUNK:
 			case ALGO_TIMETRAVEL:
 			case ALGO_BITCORE:
+			case ALGO_EXOSIS:
 			case ALGO_X11EVO:
 			case ALGO_X11:
 			case ALGO_X12:
@@ -2371,6 +2376,9 @@ static void *miner_thread(void *userdata)
 			break;
 		case ALGO_BLAKE:
 			rc = scanhash_blake256(thr_id, &work, max_nonce, &hashes_done, 14);
+			break;
+		case ALGO_BLAKE2B:
+			rc = scanhash_blake2b(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_BLAKE2S:
 			rc = scanhash_blake2s(thr_id, &work, max_nonce, &hashes_done);
@@ -2543,6 +2551,9 @@ static void *miner_thread(void *userdata)
 			break;
 		case ALGO_BITCORE:
 			rc = scanhash_bitcore(thr_id, &work, max_nonce, &hashes_done);
+			break;
+		case ALGO_EXOSIS:
+			rc = scanhash_exosis(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_X11EVO:
 			rc = scanhash_x11evo(thr_id, &work, max_nonce, &hashes_done);

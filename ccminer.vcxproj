@@ -460,6 +460,7 @@
     </CudaCompile>
     <CudaCompile Include="JHA\cuda_jha_keccak512.cu">
     </CudaCompile>
+    <CudaCompile Include="blake2b.cu" />
     <CudaCompile Include="Algo256\blake256.cu">
       <MaxRegCount>64</MaxRegCount>
       <AdditionalOptions Condition="'$(Configuration)'=='Release'">--ptxas-options="-dlcm=cg" %(AdditionalOptions)</AdditionalOptions>
@@ -576,6 +577,7 @@
     <CudaCompile Include="x11\s3.cu" />
     <CudaCompile Include="x11\timetravel.cu" />
     <CudaCompile Include="x11\bitcore.cu" />
+    <CudaCompile Include="x11\exosis.cu" />
     <CudaCompile Include="x11\veltor.cu" />
     <CudaCompile Include="x11\x11.cu" />
     <CudaCompile Include="x11\x11evo.cu" />

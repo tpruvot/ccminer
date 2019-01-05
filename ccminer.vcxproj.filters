@@ -841,6 +841,9 @@
     <CudaCompile Include="x11\bitcore.cu">
       <Filter>Source Files\CUDA\x11</Filter>
     </CudaCompile>
+    <CudaCompile Include="x11\exosis.cu">
+      <Filter>Source Files\CUDA\x11</Filter>
+    </CudaCompile>
     <CudaCompile Include="x11\veltor.cu">
       <Filter>Source Files\CUDA\x11</Filter>
     </CudaCompile>
@@ -948,6 +951,9 @@
     </CudaCompile>
     <CudaCompile Include="lyra2\lyra2Z.cu">
       <Filter>Source Files\CUDA\lyra2</Filter>
+    </CudaCompile>
+    <CudaCompile Include="blake2b.cu">
+      <Filter>Source Files\CUDA\</Filter>
     </CudaCompile>
     <CudaCompile Include="Algo256\blake2s.cu">
       <Filter>Source Files\CUDA\Algo256</Filter>
