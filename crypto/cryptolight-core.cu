@@ -213,9 +213,8 @@ void cryptolight_old_gpu_phase2(const int threads, const int bfactor, const int 
 #endif // __CUDA_ARCH__ >= 300
 }
 
-__device__ __forceinline__ void store_variant1(uint32_t * __restrict__ long_state, const uint4 ls)
+__device__ __forceinline__ void store_variant1(uint32_t * __restrict__ long_state, uint4 Z)
 {
-	uint4 Z = ls;
 	const uint32_t tmp = (Z.z >> 24); // __byte_perm(src, 0, 0x7773);
 	const uint32_t index = (((tmp >> 3) & 6u) | (tmp & 1u)) << 1;
 	Z.z = (Z.z & 0x00ffffffu) | ((tmp ^ ((0x75310u >> index) & 0x30u)) << 24);
