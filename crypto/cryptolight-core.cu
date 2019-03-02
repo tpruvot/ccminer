@@ -30,13 +30,14 @@ void cryptolight_core_gpu_phase1(const int threads, uint32_t * __restrict__ long
 {
 	__shared__ uint32_t __align__(16) sharedMemory[1024];
 
+	cn_aes_gpu_init(sharedMemory);
+	__syncthreads();
+
 	const int thread = (blockDim.x * blockIdx.x + threadIdx.x) >> 3;
 	const int sub = (threadIdx.x & 7) << 2;
 
 	if (thread < threads)
 	{
-		cn_aes_gpu_init(sharedMemory);
-
 		const int oft = thread * 50 + sub + 16; // not aligned 16!
 		const int long_oft = (thread << LONG_SHL_IDX) + sub;
 		uint32_t __align__(16) key[40];
@@ -49,8 +50,6 @@ void cryptolight_core_gpu_phase1(const int threads, uint32_t * __restrict__ long
 
 		AS_UINT2(&text[0]) = AS_UINT2(&ctx_state[oft]);
 		AS_UINT2(&text[2]) = AS_UINT2(&ctx_state[oft + 2]);
-
-		__syncthreads();
 
 		for (int i = 0; i < LONG_LOOPS32; i += 32) {
 			cn_aes_pseudo_round_mut(sharedMemory, text, key);
@@ -236,12 +235,13 @@ void cryptolight_gpu_phase2(const int threads, const uint16_t bfactor, const uin
 {
 	__shared__ __align__(16) uint32_t sharedMemory[1024];
 
+	cn_aes_gpu_init(sharedMemory);
+	__syncthreads();
+
 	const int thread = blockDim.x * blockIdx.x + threadIdx.x;
 
 	if (thread < threads)
 	{
-		cn_aes_gpu_init(sharedMemory);
-
 		const uint32_t batchsize = ITER >> (2 + bfactor);
 		const uint32_t start = partidx * batchsize;
 		const uint32_t end = start + batchsize;
@@ -253,8 +253,6 @@ void cryptolight_gpu_phase2(const int threads, const uint16_t bfactor, const uin
 		uint4 B = __ldg((uint4 *)&d_ctx_b[thread << 2]);
 		uint32_t* a = (uint32_t*)&A;
 		uint32_t* b = (uint32_t*)&B;
-
-		__syncthreads();
 
 		for (int i = start; i < end; i++)
 		{
@@ -287,13 +285,14 @@ void cryptolight_core_gpu_phase3(const int threads, const uint32_t * long_state,
 {
 	__shared__ uint32_t __align__(16) sharedMemory[1024];
 
+	cn_aes_gpu_init(sharedMemory);
+	__syncthreads();
+
 	const int thread = (blockDim.x * blockIdx.x + threadIdx.x) >> 3;
 	const int sub = (threadIdx.x & 7) << 2;
 
 	if (thread < threads)
 	{
-		cn_aes_gpu_init(sharedMemory);
-
 		const int long_oft = (thread << LONG_SHL_IDX) + sub;
 		const int oft = thread * 50 + sub + 16;
 		uint32_t __align__(16) key[40];
@@ -305,8 +304,6 @@ void cryptolight_core_gpu_phase3(const int threads, const uint32_t * long_state,
 
 		AS_UINT2(&text[0]) = AS_UINT2(&ctx_state[oft + 0]);
 		AS_UINT2(&text[2]) = AS_UINT2(&ctx_state[oft + 2]);
-
-		__syncthreads();
 
 		for (int i = 0; i < LONG_LOOPS32; i += 32)
 		{
