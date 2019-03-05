@@ -101,6 +101,13 @@ struct uint3  blockDim;
     for( i_memcpy8 = 0; i_memcpy8 < cnt; i_memcpy8++ ) \
         out_memcpy8[i_memcpy8] = in_memcpy8[i_memcpy8]; }
 
+#define LDG_MEMCPY8(dst,src,cnt) { \
+    int i_memcpy8; \
+    uint64_t *in_memcpy8 = (uint64_t *)(src); \
+    uint64_t *out_memcpy8 = (uint64_t *)(dst); \
+    for( i_memcpy8 = 0; i_memcpy8 < cnt; i_memcpy8++ ) \
+        out_memcpy8[i_memcpy8] = __ldg(&in_memcpy8[i_memcpy8]); }
+
 #define MEMCPY4(dst,src,cnt) { \
     int i_memcpy4; \
     uint32_t *in_memcpy4 = (uint32_t *)(src); \
@@ -135,7 +142,7 @@ static inline void exit_if_cudaerror(int thr_id, const char *src, int line)
 		exit(1);
 	}
 }
-void cryptonight_core_cuda(int thr_id, uint32_t blocks, uint32_t threads, uint64_t *d_long_state, uint32_t *d_ctx_state, uint32_t *d_ctx_a, uint32_t *d_ctx_b, uint32_t *d_ctx_key1, uint32_t *d_ctx_key2, int variant, uint64_t *d_ctx_tweak);
+void cryptonight_core_cuda(int thr_id, uint32_t blocks, uint32_t threads, ulonglong2 *d_long_state, uint32_t *d_ctx_state, uint32_t *d_ctx_a, uint32_t *d_ctx_b, uint32_t *d_ctx_key1, uint32_t *d_ctx_key2, int variant, uint64_t *d_ctx_tweak);
 
 void cryptonight_extra_setData(int thr_id, const void *data, const void *ptarget);
 void cryptonight_extra_init(int thr_id);

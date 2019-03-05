@@ -11,7 +11,7 @@ static __thread bool gpu_init_shown = false;
 #define gpulog_init(p,thr,fmt, ...) if (!gpu_init_shown) \
 	gpulog(p, thr, fmt, ##__VA_ARGS__)
 
-static uint64_t *d_long_state[MAX_GPUS];
+static ulonglong2 *d_long_state[MAX_GPUS];
 static uint32_t *d_ctx_state[MAX_GPUS];
 static uint32_t *d_ctx_key1[MAX_GPUS];
 static uint32_t *d_ctx_key2[MAX_GPUS];
@@ -103,7 +103,10 @@ extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_
 		exit_if_cudaerror(thr_id, __FUNCTION__, __LINE__);
 		cudaMalloc(&d_ctx_b[thr_id], 4 * sizeof(uint32_t) * throughput);
 		exit_if_cudaerror(thr_id, __FUNCTION__, __LINE__);
-		cudaMalloc(&d_ctx_tweak[thr_id], sizeof(uint64_t) * throughput);
+		if (cryptonight_fork == 7 || cryptonight_fork == 8)
+			cudaMalloc(&d_ctx_tweak[thr_id], 4 * sizeof(uint64_t) * throughput);
+		else
+			cudaMalloc(&d_ctx_tweak[thr_id], sizeof(uint64_t) * throughput);
 		exit_if_cudaerror(thr_id, __FILE__, __LINE__);
 
 		gpu_init_shown = true;
@@ -132,6 +135,7 @@ extern "C" int scanhash_cryptonight(int thr_id, struct work* work, uint32_t max_
 			memcpy(tempdata, pdata, 76);
 			*tempnonceptr = resNonces[0];
 			cryptonight_hash_variant(vhash, tempdata, 76, variant);
+
 			if(vhash[7] <= Htarg && fulltest(vhash, ptarget))
 			{
 				res = 1;
