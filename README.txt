@@ -65,7 +65,7 @@ your parameters carefuly.
 
 THIS PROGRAMM IS PROVIDED "AS-IS", USE IT AT YOUR OWN RISK!
 
-If you're interessted and read the source-code, please excuse
+If you're interested to read the source-code, please excuse
 that the most of our comments are in german.
 
 >>> Command Line Interface <<<
