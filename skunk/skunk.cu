@@ -197,7 +197,7 @@ extern "C" void free_skunk(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	if (use_compat_kernels[thr_id])
 		x13_fugue512_cpu_free(thr_id);

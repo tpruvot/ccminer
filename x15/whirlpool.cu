@@ -166,7 +166,7 @@ extern "C" void free_whirl(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 #ifdef SM3_VARIANT
 	cudaFree(d_hash[thr_id]);

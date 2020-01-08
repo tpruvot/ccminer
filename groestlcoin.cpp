@@ -104,7 +104,7 @@ void free_groestlcoin(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	groestlcoin_cpu_free(thr_id);
 	init[thr_id] = false;

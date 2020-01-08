@@ -155,7 +155,7 @@ extern "C" void free_lyra2Z(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	cudaFree(d_hash[thr_id]);
 	if (device_sm[dev_id] >= 350)

@@ -571,7 +571,7 @@ void whirlpoolx_precompute(int thr_id)
 	dim3 block(256);
 
 	whirlpoolx_gpu_precompute <<<grid, block>>>(8, d_xtra[thr_id], d_tmp[thr_id]);
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	cudaMemcpyToSymbol(c_xtra, d_xtra[thr_id], 8 * sizeof(uint64_t), 0, cudaMemcpyDeviceToDevice);
 	CUDA_SAFE_CALL(cudaMemcpyToSymbol(c_tmp, d_tmp[thr_id], 8 * 9 * sizeof(uint64_t), 0, cudaMemcpyDeviceToDevice));
@@ -586,7 +586,7 @@ uint32_t whirlpoolx_cpu_hash(int thr_id, uint32_t threads, uint32_t startNounce)
 	cudaMemset(d_WXNonce[thr_id], 0xff, sizeof(uint32_t));
 
 	whirlpoolx_gpu_hash<<<grid, block>>>(threads, startNounce, d_WXNonce[thr_id]);
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	cudaMemcpy(h_wxnounce[thr_id], d_WXNonce[thr_id], sizeof(uint32_t), cudaMemcpyDeviceToHost);
 

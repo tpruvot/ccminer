@@ -169,7 +169,7 @@ extern "C" void free_s3(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	cudaFree(d_hash[thr_id]);
 	x11_simd512_cpu_free(thr_id);

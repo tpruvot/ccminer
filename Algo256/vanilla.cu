@@ -481,7 +481,7 @@ extern "C" void free_vanilla(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	cudaFreeHost(h_resNonce[thr_id]);
 	cudaFree(d_resNonce[thr_id]);

@@ -127,7 +127,7 @@ extern "C" void free_bmw(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	cudaFree(d_hash[thr_id]);
 	bmw256_midstate_free(thr_id);

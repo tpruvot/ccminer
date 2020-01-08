@@ -316,7 +316,7 @@ extern "C" void free_heavy(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	cudaFree(heavy_nonceVector[thr_id]);
 

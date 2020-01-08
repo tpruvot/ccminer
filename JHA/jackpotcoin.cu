@@ -273,7 +273,7 @@ extern "C" void free_jackpot(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	cudaFree(d_branch1Nonces[thr_id]);
 	cudaFree(d_branch2Nonces[thr_id]);

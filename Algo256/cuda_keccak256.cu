@@ -207,7 +207,7 @@ void keccak256_cpu_hash_80(int thr_id, uint32_t threads, uint32_t startNonce, ui
 	const dim3 block(tpb);
 
 	keccak256_gpu_hash_80<<<grid, block>>>(threads, startNonce, d_nonces[thr_id], highTarget);
-//	cudaThreadSynchronize();
+//	cudaDeviceSynchronize();
 	cudaMemcpy(h_nonces[thr_id], d_nonces[thr_id], NBN*sizeof(uint32_t), cudaMemcpyDeviceToHost);
 	memcpy(resNonces, h_nonces[thr_id], NBN*sizeof(uint32_t));
 }

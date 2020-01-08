@@ -469,7 +469,7 @@ extern "C" void free_skeincoin(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	if (sm5)
 		skeincoin_free(thr_id);

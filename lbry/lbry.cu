@@ -229,7 +229,7 @@ void free_lbry(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	if(device_sm[device_map[thr_id]] <= 500)
 		cudaFree(d_hash[thr_id]);

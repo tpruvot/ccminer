@@ -167,7 +167,7 @@ uint32_t sia_blake2b_hash_cuda(const int thr_id, const uint32_t threads, const u
 		return result;
 
 	sia_blake2b_gpu_hash <<<grid, block, 8>>> (threads, startNonce, d_resNonces[thr_id], target2);
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	if (cudaSuccess == cudaMemcpy(resNonces, d_resNonces[thr_id], NBN*sizeof(uint32_t), cudaMemcpyDeviceToHost)) {
 		result = resNonces[0];
@@ -294,7 +294,7 @@ extern "C" void free_sia(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	cudaFree(d_resNonces[thr_id]);
 

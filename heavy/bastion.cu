@@ -212,7 +212,7 @@ extern "C" void free_bastion(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	cudaFree(d_hash[thr_id]);
 	cudaFree(d_hash_br1[thr_id]);

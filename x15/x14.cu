@@ -253,7 +253,7 @@ extern "C" void free_x14(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	quark_blake512_cpu_free(thr_id);
 	quark_groestl512_cpu_free(thr_id);

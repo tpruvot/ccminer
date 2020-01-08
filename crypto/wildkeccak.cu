@@ -366,7 +366,7 @@ void free_wildkeccak(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	cudaFree(d_scratchpad[thr_id]);
 	cudaFree(d_input[thr_id]);

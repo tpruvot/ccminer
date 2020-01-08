@@ -104,7 +104,7 @@ void free_fugue256(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	fugue256_cpu_free(thr_id);
 

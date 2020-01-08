@@ -126,7 +126,7 @@ extern "C" void free_sha256q(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	sha256q_free(thr_id);
 

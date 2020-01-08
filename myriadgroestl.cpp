@@ -121,7 +121,7 @@ void free_myriad(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	myriadgroestl_cpu_free(thr_id);
 	init[thr_id] = false;

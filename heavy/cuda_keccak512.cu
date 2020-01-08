@@ -263,7 +263,7 @@ void keccak512_cpu_copyHeftyHash(int thr_id, uint32_t threads, void *heftyHashes
 	// Hefty1 Hashes kopieren
 	if (copy)
 		CUDA_SAFE_CALL(cudaMemcpy(heavy_heftyHashes[thr_id], heftyHashes, 8 * sizeof(uint32_t) * threads, cudaMemcpyHostToDevice));
-	//else cudaThreadSynchronize();
+	//else cudaDeviceSynchronize();
 }
 
 __host__

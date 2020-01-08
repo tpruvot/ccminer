@@ -254,7 +254,7 @@ extern "C" void free_phi2(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 	cudaFree(d_matrix[thr_id]);
 	cudaFree(d_hash_512[thr_id]);
 	cudaFree(d_hash_256[thr_id]);

@@ -480,9 +480,9 @@ void sha256t_hash_80(int thr_id, uint32_t threads, uint32_t startNonce, uint32_t
 	dim3 block(threadsperblock);
 
 	CUDA_SAFE_CALL(cudaMemset(d_resNonces[thr_id], 0xFF, 2 * sizeof(uint32_t)));
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 	sha256t_gpu_hash_shared <<<grid, block>>> (threads, startNonce, d_resNonces[thr_id]);
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	CUDA_SAFE_CALL(cudaMemcpy(resNonces, d_resNonces[thr_id], 2 * sizeof(uint32_t), cudaMemcpyDeviceToHost));
 	if (resNonces[0] == resNonces[1]) {

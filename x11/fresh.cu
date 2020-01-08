@@ -120,7 +120,7 @@ extern "C" int scanhash_fresh(int thr_id, struct work* work, uint32_t max_nonce,
 #if NULLTEST
 		uint32_t buf[8]; memset(buf, 0, sizeof buf);
 		CUDA_SAFE_CALL(cudaMemcpy(buf, d_hash[thr_id], sizeof buf, cudaMemcpyDeviceToHost));
-		CUDA_SAFE_CALL(cudaThreadSynchronize());
+		CUDA_SAFE_CALL(cudaDeviceSynchronize());
 		print_hash((unsigned char*)buf); printf("\n");
 #endif
 		*hashes_done = pdata[19] - first_nonce + throughput;

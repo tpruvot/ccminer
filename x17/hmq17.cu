@@ -523,7 +523,7 @@ extern "C" void free_hmq17(int thr_id)
 	if (!init[thr_id])
 		return;
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	cudaFree(d_hash[thr_id]);
 	cudaFree(d_hash_br2[thr_id]);
