@@ -14,6 +14,7 @@
  * Copyright (c) 2017 djeZo, Tanguy Pruvot (GPL v3)
  */
 
+
 #ifdef WIN32
 #include <Windows.h>
 #endif
@@ -1708,10 +1709,10 @@ __global__ void digit_last_wdc(equi<RB, SM>* eq)
 
 		if (lane % 4 == 0)
 			CALC_LEVEL_SMALL(2, lane, lane + 2, 3);
-
+		
 		if (lane % 2 == 0)
 			CALC_LEVEL(0, lane, lane + 1, 4);
-
+		
 		u32 ind[16];
 
 		u32 f1 = levels[lane];
