@@ -1,0 +1,28 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ linux ]
+  pull_request:
+    branches: [ linux ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ccminer:latest --no-cache
+    - name: Docker image list
+      run: docker images
+    - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
+      uses: anchore/scan-action@main
+      with:
+        image: "ccminer:latest"
+        acs-report-enable: true
+    - name: Upload Anchore Scan Report
+      uses: github/codeql-action/upload-sarif@v1
+      with:
+        sarif_file: results.sarif
