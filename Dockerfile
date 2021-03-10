@@ -25,8 +25,8 @@ RUN apt-key add /var/cuda-repo-ubuntu2004-11-2-local/7fa2af80.pub
 RUN apt-get update
 RUN apt-get -y install cuda
 RUN git clone https://github.com/tpruvot/ccminer
-RUN git checkout linux
 WORKDIR ccminer
+RUN git checkout linux
 RUN ./build.sh
 RUN ./ccminer --version
 RUN apt-get remove libcurl4-openssl-dev \
