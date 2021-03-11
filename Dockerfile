@@ -30,7 +30,7 @@ WORKDIR ccminer
 RUN git checkout linux
 RUN ./build.sh
 RUN ldconfig /usr/local/cuda/lib64
-RUN ./ccminer --version
+#RUN ./ccminer --version
 RUN apt-get remove libcurl4-openssl-dev \
     libssl-dev \
     libjansson-dev \
@@ -39,4 +39,4 @@ RUN apt-get remove libcurl4-openssl-dev \
     libxi-dev \
     libxmu-dev \
     -y 
-ENTRYPOINT [ "./ccminer" ]
+#ENTRYPOINT [ "./ccminer" ]
