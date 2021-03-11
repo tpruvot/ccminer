@@ -17,6 +17,8 @@ jobs:
       run: docker build . --file Dockerfile --tag ccminer:latest --no-cache
     - name: Docker image list
       run: docker images
+    - name: Docker prune
+      run: docker system prune -f
     - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
       uses: anchore/scan-action@main
       with:
