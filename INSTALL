@@ -16,11 +16,6 @@ First, install Cuda toolkit and nVidia Driver, and type `nvidia-smi` to check if
 Install dependencies
 ```sudo apt-get install libcurl4-openssl-dev libssl-dev libjansson-dev automake autotools-dev build-essential```
 
-Ubuntu is now shipped with gcc 6 or 7 so please install gcc/g++ 5 and make it the default (required by the cuda toolkit)
-```
-sudo apt-get install gcc-5 g++-5
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 1
-```
 
 Then use the helper ./build.sh in ccminer source folder, edit configure.sh and the Makefile.am if required.
 ```
